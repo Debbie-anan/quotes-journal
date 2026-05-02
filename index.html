@@ -1005,23 +1005,26 @@ async function generateCardImage(quoteId) {
   document.getElementById('imgHint').style.display = 'none';
 
   const len = q.text.length;
-  const fontSize = len > 80 ? 18 : len > 40 ? 22 : 26;
-  const authorSize = len > 80 ? 13 : 15;
+  const fontSize = len > 80 ? 22 : len > 40 ? 26 : 32;
+  const authorSize = len > 80 ? 15 : 17;
   const fontFamily = getFontFamily(q.fontId);
 
   const authorLine = q.author && q.author !== t().defaultAuthor
-    ? `<div style=”font-family:${fontFamily};font-size:${authorSize}px;color:#8a7a6a;margin-top:24px;letter-spacing:2px;”>—— ${escapeHtml(q.author)}${q.source ? '  '+t().sourceWrap(escapeHtml(q.source)) : ''}</div>`
-    : (q.source ? `<div style=”font-family:${fontFamily};font-size:${authorSize}px;color:#8a7a6a;margin-top:24px;letter-spacing:2px;”>${t().sourceWrap(escapeHtml(q.source))}</div>` : '');
+    ? `<div style=”font-family:${fontFamily};font-size:${authorSize}px;color:#8a7a6a;margin-top:30px;letter-spacing:2px;”>—— ${escapeHtml(q.author)}${q.source ? '  '+t().sourceWrap(escapeHtml(q.source)) : ''}</div>`
+    : (q.source ? `<div style=”font-family:${fontFamily};font-size:${authorSize}px;color:#8a7a6a;margin-top:30px;letter-spacing:2px;”>${t().sourceWrap(escapeHtml(q.source))}</div>` : '');
 
   const wrapper = document.createElement('div');
   wrapper.style.cssText = 'position:fixed;left:-9999px;top:0;width:540px;height:540px;';
   wrapper.innerHTML = `<table cellpadding=”0” cellspacing=”0” border=”0” style=”table-layout:fixed;width:540px;height:540px;background:#faf4e8;background-image:radial-gradient(ellipse at 30% 40%,rgba(210,180,140,0.18) 0%,transparent 70%),radial-gradient(ellipse at 75% 70%,rgba(180,160,130,0.12) 0%,transparent 60%);”>
-    <tr><td style=”vertical-align:middle;text-align:center;padding:50px 55px;word-wrap:break-word;word-break:break-all;”>
-      <div style=”font-family:${fontFamily};font-size:${fontSize}px;line-height:2.1;color:#2d2014;letter-spacing:2px;word-wrap:break-word;word-break:normal;overflow-wrap:break-word;”>${escapeHtml(q.text)}</div>
+    <tr><td style=”vertical-align:middle;text-align:center;padding:50px 55px;word-wrap:break-word;”>
+      <div style=”font-family:${fontFamily};font-size:${fontSize}px;line-height:2.5;color:#2d2014;letter-spacing:2px;word-wrap:break-word;word-break:normal;overflow-wrap:break-word;”>${escapeHtml(q.text)}</div>
       ${authorLine}
     </td></tr>
   </table>`;
   document.body.appendChild(wrapper);
+
+  await document.fonts.ready;
+  await new Promise(r => setTimeout(r, 100));
 
   try {
     const canvas = await html2canvas(wrapper.querySelector('table'), {
