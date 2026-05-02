@@ -170,9 +170,10 @@ body::after {
 .layout-toggle.active { border-color: var(--ink); color: var(--ink); background: rgba(255,255,255,0.4); }
 
 /* --- Quote Grid --- */
-.quotes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 28px; perspective: 1000px; }
+.quotes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 28px; perspective: 1000px; overflow: hidden; }
 .quotes-grid.grid-2col { grid-template-columns: repeat(2, 1fr); gap: 14px; }
-.quotes-grid.grid-2col .quote-card { padding: 18px 14px 14px; }
+.quotes-grid.grid-2col .quote-card { padding: 18px 14px 14px; transform: none !important; }
+.quotes-grid.grid-2col .quote-card:hover { transform: translateY(-4px) !important; }
 .quotes-grid.grid-2col .quote-text { font-size: 0.95rem; line-height: 1.6; }
 .quotes-grid.grid-2col .quote-author { font-size: 0.8rem; }
 .quotes-grid.grid-2col .quote-source { font-size: 0.7rem; }
@@ -183,7 +184,7 @@ body::after {
 
 /* --- Quote Card --- */
 .quote-card {
-  position: relative; padding: 28px 24px 20px;
+  position: relative; padding: 28px 24px 20px; min-width: 0;
   border: 2px solid var(--pencil);
   border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
   transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.35s;
