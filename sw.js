@@ -1,4 +1,4 @@
-const CACHE_NAME = 'quotes-journal-v1';
+const CACHE_NAME = 'quotes-journal-v2';
 const ASSETS = [
   'quotes-app.html',
   'manifest.json',
