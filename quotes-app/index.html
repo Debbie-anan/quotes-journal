@@ -1187,48 +1187,15 @@ async function saveCardImage() {
   const q = state.quotes.find(q => q.id === editorQuoteId);
   if (!q) return;
 
-  const fontSize = parseInt(document.getElementById('imgFontSize').value);
-  const lineHeightRaw = parseInt(document.getElementById('imgLineHeight').value);
-  const lineHeight = (lineHeightRaw / 10).toFixed(1);
-  const fontFamily = getFontFamily(q.fontId);
-  const authorSize = Math.max(12, Math.round(fontSize * 0.6));
-
-  let authorText = '';
-  if (q.author && q.author !== t().defaultAuthor) {
-    authorText = '—— ' + escapeHtml(q.author) + (q.source ? '  ' + t().sourceWrap(escapeHtml(q.source)) : '');
-  } else if (q.source) {
-    authorText = t().sourceWrap(escapeHtml(q.source));
-  }
-  const authorLine = authorText ? `<div style=”font-family:${fontFamily};font-size:${authorSize}px;color:#8a7a6a;margin-top:16px;letter-spacing:1.5px;”>${authorText}</div>` : '';
-
-  const stickersHtml = editorStickers.map(s =>
-    `<span style=”position:absolute;left:${s.x}%;top:${s.y}%;font-size:${s.size||24}px;transform:rotate(${s.rot||0}deg);line-height:1;”>${s.emoji}</span>`
-  ).join('');
-
-  const wrapper = document.createElement('div');
-  wrapper.style.cssText = 'position:fixed;left:-9999px;top:0;width:540px;height:540px;';
-  wrapper.innerHTML = `<table cellpadding=”0” cellspacing=”0” border=”0” style=”table-layout:fixed;width:540px;height:540px;background:#faf4e8;background-image:radial-gradient(ellipse at 30% 40%,rgba(210,180,140,0.18) 0%,transparent 70%),radial-gradient(ellipse at 75% 70%,rgba(180,160,130,0.12) 0%,transparent 60%);”>
-    <tr><td style=”vertical-align:middle;text-align:center;padding:50px 55px;word-wrap:break-word;position:relative;”>
-      ${stickersHtml}
-      <div style=”font-family:${fontFamily};font-size:${fontSize}px;line-height:${lineHeight};color:#2d2014;letter-spacing:1.5px;word-wrap:break-word;overflow-wrap:break-word;”>${escapeHtml(q.text)}</div>
-      ${authorLine}
-    </td></tr>
-  </table>`;
-  document.body.appendChild(wrapper);
-
-  await document.fonts.ready;
-  await new Promise(r => setTimeout(r, 150));
+  const cardWrap = document.getElementById('imgCardWrap');
 
   try {
-    const canvas = await html2canvas(wrapper.querySelector('table'), {
+    const canvas = await html2canvas(cardWrap, {
       backgroundColor: '#faf4e8',
-      scale: 2,
+      scale: 4,
       useCORS: true,
       logging: false,
-      width: 540,
-      height: 540,
     });
-    document.body.removeChild(wrapper);
 
     canvas.toBlob((blob) => {
       cardImageBlob = blob;
@@ -1241,7 +1208,6 @@ async function saveCardImage() {
       }
     }, 'image/png');
   } catch (e) {
-    if (wrapper.parentNode) document.body.removeChild(wrapper);
     showToast(lang==='zh'?'生成图片失败':'Failed to generate image');
   }
 }
