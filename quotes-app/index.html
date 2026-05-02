@@ -454,15 +454,18 @@ body::after {
 .img-overlay {
   position: fixed; inset: 0; background: rgba(45,32,20,0.7); backdrop-filter: blur(4px);
   z-index: 2500; display: flex; flex-direction: column; align-items: center; justify-content: center;
-  padding: 12px; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s;
-  overflow-y: auto; -webkit-overflow-scrolling: touch;
+  padding: 10px; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s;
 }
 .img-overlay.open { opacity: 1; visibility: visible; }
 
-.img-editor { display: flex; flex-direction: column; align-items: center; gap: 14px; width: 100%; max-width: 400px; }
+.img-editor {
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  width: 100%; max-width: 400px; max-height: 100%; overflow-y: auto; -webkit-overflow-scrolling: touch;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
 
 .img-card-wrap {
-  position: relative; width: 300px; height: 300px; border-radius: 8px; overflow: hidden; flex-shrink: 0;
+  position: relative; width: 260px; height: 260px; border-radius: 8px; overflow: hidden; flex-shrink: 0;
   box-shadow: 0 8px 40px rgba(0,0,0,0.3);
   background: #faf4e8;
   background-image: radial-gradient(ellipse at 30% 40%,rgba(210,180,140,0.18) 0%,transparent 70%),
