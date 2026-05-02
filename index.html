@@ -996,28 +996,45 @@ function cardClick(quoteId, event) {
 let cardImageBlob = null;
 
 async function generateCardImage(quoteId) {
-  const card = document.querySelector(`[data-id="${quoteId}"]`);
-  if (!card) return;
+  const q = state.quotes.find(q => q.id === quoteId);
+  if (!q) return;
   const overlay = document.getElementById('imgOverlay');
   overlay.classList.add('open');
   document.getElementById('imgPreview').style.display = 'none';
   document.querySelector('.img-actions').style.display = 'none';
   document.getElementById('imgHint').style.display = 'none';
 
-  const origFilter = card.style.filter;
-  const origTransform = card.style.transform;
-  card.style.filter = 'none';
-  card.style.transform = 'none';
+  const wrapper = document.createElement('div');
+  wrapper.style.cssText = 'position:fixed;left:-9999px;top:0;width:540px;height:540px;background:#faf4e8;display:flex;align-items:center;justify-content:center;padding:48px;';
+  const inner = document.createElement('div');
+  inner.style.cssText = `width:100%;background:var(--note-${q.color||'cream'});border:2px solid #5a4a3a;border-radius:12px;padding:32px 28px 24px;position:relative;`;
+  const stickersHtml = (q.stickers||[]).map(s =>
+    `<span style="position:absolute;left:${s.x}%;top:${s.y}%;transform:rotate(${s.rot||0}deg);font-size:1.4rem;line-height:1;">${s.emoji}</span>`
+  ).join('');
+  const sourceStr = q.source ? `<div style="font-family:${getFontFamily(q.fontId)};font-size:0.75rem;color:#8a7a6a;text-align:right;margin-bottom:10px;">${t().sourceWrap(escapeHtml(q.source))}</div>` : '';
+  inner.innerHTML = `${stickersHtml}
+    <div style="font-family:${getFontFamily(q.fontId)};font-size:1rem;line-height:1.9;color:#2d2014;margin-bottom:14px;position:relative;">
+      <span style="font-family:'Caveat',cursive;font-size:2.2rem;color:#8a7a6a;opacity:0.3;position:absolute;top:-12px;left:-6px;line-height:1;">“</span>
+      ${escapeHtml(q.text)}
+    </div>
+    ${q.author?`<div style="font-family:${getFontFamily(q.fontId)};font-size:0.85rem;color:#5a4a3a;text-align:right;margin-bottom:3px;">—— ${escapeHtml(q.author)}</div>`:''}
+    ${sourceStr}
+    <div style="border-top:1.5px dashed #d4c4a8;padding-top:8px;display:flex;align-items:center;gap:6px;">
+      <span style="font-size:0.7rem;color:#8a7a6a;padding:2px 8px;border:1px solid #d4c4a8;border-radius:10px;">${getCategoryIcon(q.category)} ${getCategoryDisplay(q.category)}</span>
+    </div>`;
+  wrapper.appendChild(inner);
+  document.body.appendChild(wrapper);
 
   try {
-    const canvas = await html2canvas(card, {
-      backgroundColor: null,
+    const canvas = await html2canvas(wrapper, {
+      backgroundColor: '#faf4e8',
       scale: 2,
       useCORS: true,
       logging: false,
+      width: 540,
+      height: 540,
     });
-    card.style.filter = origFilter;
-    card.style.transform = origTransform;
+    document.body.removeChild(wrapper);
 
     const dataUrl = canvas.toDataURL('image/png');
     document.getElementById('imgPreview').src = dataUrl;
@@ -1027,8 +1044,7 @@ async function generateCardImage(quoteId) {
 
     canvas.toBlob((blob) => { cardImageBlob = blob; }, 'image/png');
   } catch (e) {
-    card.style.filter = origFilter;
-    card.style.transform = origTransform;
+    document.body.removeChild(wrapper);
     closeImgPreview();
     showToast(lang==='zh'?'生成图片失败':'Failed to generate image');
   }
