@@ -1,7 +1,7 @@
 {
-  "name": "内心想法 - Inner Thoughts",
-  "short_name": "内心想法",
-  "description": "A hand-drawn style thought collection app",
+  "name": "语录日志 - Quote Journal",
+  "short_name": "语录日志",
+  "description": "A hand-drawn style quote collection app",
   "start_url": "index.html",
   "display": "standalone",
   "background_color": "#faf4e8",
