@@ -450,26 +450,80 @@ body::after {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--paper-line); border-radius: 3px; }
 
-/* --- Image preview overlay --- */
+/* --- Image editor overlay --- */
 .img-overlay {
   position: fixed; inset: 0; background: rgba(45,32,20,0.7); backdrop-filter: blur(4px);
   z-index: 2500; display: flex; flex-direction: column; align-items: center; justify-content: center;
-  padding: 20px; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s;
+  padding: 12px; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s;
+  overflow-y: auto; -webkit-overflow-scrolling: touch;
 }
 .img-overlay.open { opacity: 1; visibility: visible; }
-.img-preview { max-width: 92%; max-height: 65vh; max-height: 65dvh; border-radius: 12px; box-shadow: 0 8px 40px rgba(0,0,0,0.3); }
-.img-actions { display: flex; gap: 12px; margin-top: 20px; }
+
+.img-editor { display: flex; flex-direction: column; align-items: center; gap: 14px; width: 100%; max-width: 400px; }
+
+.img-card-wrap {
+  position: relative; width: 300px; height: 300px; border-radius: 8px; overflow: hidden; flex-shrink: 0;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+  background: #faf4e8;
+  background-image: radial-gradient(ellipse at 30% 40%,rgba(210,180,140,0.18) 0%,transparent 70%),
+    radial-gradient(ellipse at 75% 70%,rgba(180,160,130,0.12) 0%,transparent 60%);
+}
+.img-card-inner {
+  width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+  padding: 28px 32px; text-align: center; position: relative; overflow: hidden;
+}
+.img-card-text { color: #2d2014; letter-spacing: 1.5px; word-wrap: break-word; overflow-wrap: break-word; }
+.img-card-author { color: #8a7a6a; letter-spacing: 1.5px; margin-top: 16px; }
+.img-card-sticker {
+  position: absolute; cursor: pointer; z-index: 5; line-height: 1; user-select: none;
+  transition: transform 0.15s; filter: drop-shadow(1px 1px 1px rgba(0,0,0,0.1));
+}
+.img-card-sticker:hover { transform: scale(1.3); }
+.img-card-sticker:active { transform: scale(0.8); }
+
+.img-controls {
+  width: 100%; background: rgba(255,255,255,0.12); border-radius: 12px; padding: 14px 18px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.img-ctrl-row { display: flex; align-items: center; gap: 10px; }
+.img-ctrl-label { font-family: var(--font-ui); font-size: 0.8rem; color: rgba(255,255,255,0.7); min-width: 50px; flex-shrink: 0; }
+.img-ctrl-val { font-family: var(--font-hand-en); font-size: 0.8rem; color: rgba(255,255,255,0.5); min-width: 32px; text-align: right; flex-shrink: 0; }
+
+.img-slider {
+  flex: 1; -webkit-appearance: none; appearance: none; height: 6px; border-radius: 3px;
+  background: rgba(255,255,255,0.2); outline: none;
+}
+.img-slider::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 22px; height: 22px; border-radius: 50%;
+  background: var(--paper); border: 2px solid var(--pencil-light); cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+.img-emoji-bar { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.img-emoji-btn {
+  padding: 6px 14px; font-family: var(--font-ui); font-size: 0.85rem;
+  background: rgba(255,200,0,0.2); border: 1.5px solid rgba(255,200,0,0.4);
+  border-radius: 20px; cursor: pointer; color: var(--paper); transition: all 0.15s;
+  min-height: 36px; display: flex; align-items: center; gap: 4px;
+}
+.img-emoji-btn:hover { background: rgba(255,200,0,0.35); }
+.img-emoji-quick {
+  font-size: 1.3rem; padding: 4px; border: none; background: transparent;
+  cursor: pointer; border-radius: 6px; transition: transform 0.12s; min-width: 32px; min-height: 32px;
+  display: flex; align-items: center; justify-content: center;
+}
+.img-emoji-quick:hover { transform: scale(1.2); background: rgba(255,255,255,0.1); }
+
+.img-actions { display: flex; gap: 12px; }
 .img-btn {
-  padding: 14px 28px; font-family: var(--font-ui); font-size: 1rem;
+  padding: 12px 24px; font-family: var(--font-ui); font-size: 0.95rem;
   border: 2px solid rgba(255,255,255,0.3); border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
-  cursor: pointer; transition: all 0.2s; min-height: 48px; color: var(--paper);
+  cursor: pointer; transition: all 0.2s; min-height: 44px; color: var(--paper);
 }
 .img-btn.save-btn { background: var(--ink); }
 .img-btn.save-btn:hover { transform: scale(1.05); box-shadow: 2px 3px 0 rgba(0,0,0,0.2); }
 .img-btn.close-btn { background: rgba(255,255,255,0.15); }
 .img-btn.close-btn:hover { background: rgba(255,255,255,0.25); }
-.img-hint { font-family: var(--font-hand-en); font-size: 0.85rem; color: rgba(255,255,255,0.5); margin-top: 12px; }
-.img-loading { color: var(--paper); font-family: var(--font-ui); font-size: 1.1rem; }
 
 /* --- Responsive --- */
 @media (min-width: 700px) {
@@ -601,14 +655,43 @@ body::after {
   </div>
 </div>
 
-<!-- Image Preview -->
+<!-- Image Editor -->
 <div class="img-overlay" id="imgOverlay" onclick="if(event.target===this)closeImgPreview()">
-  <img class="img-preview" id="imgPreview" src="" alt="quote card">
-  <div class="img-actions">
-    <button class="img-btn save-btn" id="imgSaveBtn" onclick="saveCardImage()">💾 <span id="imgSaveText">保存图片</span></button>
-    <button class="img-btn close-btn" onclick="closeImgPreview()"><span id="imgCloseText">关闭</span></button>
+  <div class="img-editor">
+    <div class="img-card-wrap" id="imgCardWrap">
+      <div class="img-card-inner" id="imgCardInner">
+        <div>
+          <div class="img-card-text" id="imgCardText"></div>
+          <div class="img-card-author" id="imgCardAuthor"></div>
+        </div>
+      </div>
+    </div>
+    <div class="img-controls">
+      <div class="img-ctrl-row">
+        <span class="img-ctrl-label" id="imgLabelSize">字号</span>
+        <input type="range" class="img-slider" id="imgFontSize" min="14" max="40" value="24" oninput="updateCardPreview()">
+        <span class="img-ctrl-val" id="imgFontSizeVal">24</span>
+      </div>
+      <div class="img-ctrl-row">
+        <span class="img-ctrl-label" id="imgLabelSpacing">行距</span>
+        <input type="range" class="img-slider" id="imgLineHeight" min="15" max="40" value="24" oninput="updateCardPreview()">
+        <span class="img-ctrl-val" id="imgLineHeightVal">2.4</span>
+      </div>
+      <div class="img-emoji-bar">
+        <button class="img-emoji-btn" onclick="openEditorEmojiPicker()" id="imgEmojiBtn">🎨 <span id="imgEmojiLabel">贴纸</span></button>
+        <button class="img-emoji-quick" onclick="addEditorSticker('✨')">✨</button>
+        <button class="img-emoji-quick" onclick="addEditorSticker('🌸')">🌸</button>
+        <button class="img-emoji-quick" onclick="addEditorSticker('❤️')">❤️</button>
+        <button class="img-emoji-quick" onclick="addEditorSticker('🌿')">🌿</button>
+        <button class="img-emoji-quick" onclick="addEditorSticker('🦋')">🦋</button>
+        <button class="img-emoji-quick" onclick="addEditorSticker('🔥')">🔥</button>
+      </div>
+    </div>
+    <div class="img-actions">
+      <button class="img-btn save-btn" onclick="saveCardImage()">💾 <span id="imgSaveText">保存图片</span></button>
+      <button class="img-btn close-btn" onclick="closeImgPreview()"><span id="imgCloseText">关闭</span></button>
+    </div>
   </div>
-  <p class="img-hint" id="imgHint">Long press image to save on mobile</p>
 </div>
 
 <!-- Emoji Picker -->
@@ -954,6 +1037,12 @@ function renderEmojiGrid(filter) {
 
 function pickEmoji(emoji) {
   if (!emojiPickerQuoteId) return;
+  if (emojiPickerQuoteId === '__editor__') {
+    addEditorSticker(emoji);
+    saveRecentEmoji(emoji);
+    renderEmojiRecent();
+    return;
+  }
   const q = state.quotes.find(q => q.id === emojiPickerQuoteId);
   if (!q) return;
   if (!q.stickers) q.stickers = [];
@@ -987,44 +1076,145 @@ document.getElementById('emojiSearchInput').addEventListener('input',(e)=>{
   emojiSearchTimer=setTimeout(()=>renderEmojiGrid(e.target.value),150);
 });
 
-// --- Card to image ---
+// --- Card image editor ---
 function cardClick(quoteId, event) {
   if (event.target.closest('.card-btn') || event.target.closest('.card-sticker') || event.target.closest('.edit-indicator')) return;
-  generateCardImage(quoteId);
+  openCardEditor(quoteId);
+}
+
+let editorQuoteId = null;
+let editorStickers = [];
+
+function openCardEditor(quoteId) {
+  const q = state.quotes.find(q => q.id === quoteId);
+  if (!q) return;
+  editorQuoteId = quoteId;
+  editorStickers = [];
+
+  const len = q.text.length;
+  const defaultSize = len > 80 ? 20 : len > 40 ? 24 : 28;
+  document.getElementById('imgFontSize').value = defaultSize;
+  document.getElementById('imgLineHeight').value = 24;
+
+  document.getElementById('imgLabelSize').textContent = lang === 'zh' ? '字号' : 'Size';
+  document.getElementById('imgLabelSpacing').textContent = lang === 'zh' ? '行距' : 'Spacing';
+  document.getElementById('imgEmojiLabel').textContent = lang === 'zh' ? '贴纸' : 'Sticker';
+  document.getElementById('imgSaveText').textContent = lang === 'zh' ? '保存图片' : 'Save';
+  document.getElementById('imgCloseText').textContent = lang === 'zh' ? '关闭' : 'Close';
+
+  updateCardPreview();
+  document.getElementById('imgOverlay').classList.add('open');
+}
+
+function updateCardPreview() {
+  const q = state.quotes.find(q => q.id === editorQuoteId);
+  if (!q) return;
+
+  const fontSize = parseInt(document.getElementById('imgFontSize').value);
+  const lineHeightRaw = parseInt(document.getElementById('imgLineHeight').value);
+  const lineHeight = (lineHeightRaw / 10).toFixed(1);
+  const fontFamily = getFontFamily(q.fontId);
+
+  document.getElementById('imgFontSizeVal').textContent = fontSize;
+  document.getElementById('imgLineHeightVal').textContent = lineHeight;
+
+  const textEl = document.getElementById('imgCardText');
+  textEl.style.fontFamily = fontFamily;
+  textEl.style.fontSize = fontSize + 'px';
+  textEl.style.lineHeight = lineHeight;
+  textEl.textContent = q.text;
+
+  const authorEl = document.getElementById('imgCardAuthor');
+  const authorSize = Math.max(12, Math.round(fontSize * 0.6));
+  authorEl.style.fontFamily = fontFamily;
+  authorEl.style.fontSize = authorSize + 'px';
+  if (q.author && q.author !== t().defaultAuthor) {
+    authorEl.textContent = '—— ' + q.author + (q.source ? '  ' + t().sourceWrap(q.source) : '');
+  } else if (q.source) {
+    authorEl.textContent = t().sourceWrap(q.source);
+  } else {
+    authorEl.textContent = '';
+  }
+
+  renderEditorStickers();
+}
+
+function renderEditorStickers() {
+  const inner = document.getElementById('imgCardInner');
+  inner.querySelectorAll('.img-card-sticker').forEach(el => el.remove());
+  editorStickers.forEach((s, i) => {
+    const span = document.createElement('span');
+    span.className = 'img-card-sticker';
+    span.style.cssText = `left:${s.x}%;top:${s.y}%;font-size:${s.size||24}px;transform:rotate(${s.rot||0}deg);`;
+    span.textContent = s.emoji;
+    span.onclick = () => { editorStickers.splice(i, 1); renderEditorStickers(); };
+    inner.appendChild(span);
+  });
+}
+
+function addEditorSticker(emoji) {
+  if (editorStickers.length >= 12) { showToast(lang==='zh'?'最多12个贴纸':'Max 12 stickers'); return; }
+  const positions = [
+    {x:5+Math.random()*15, y:5+Math.random()*15},
+    {x:75+Math.random()*18, y:5+Math.random()*15},
+    {x:5+Math.random()*15, y:75+Math.random()*18},
+    {x:75+Math.random()*18, y:75+Math.random()*18},
+    {x:35+Math.random()*30, y:3+Math.random()*10},
+    {x:35+Math.random()*30, y:80+Math.random()*12},
+  ];
+  const pos = positions[Math.floor(Math.random()*positions.length)];
+  editorStickers.push({ emoji, x:Math.round(pos.x), y:Math.round(pos.y), rot:Math.round(-20+Math.random()*40), size:24 });
+  renderEditorStickers();
+}
+
+function openEditorEmojiPicker() {
+  emojiPickerQuoteId = '__editor__';
+  emojiActiveCat = 'smileys';
+  document.getElementById('emojiSearchInput').value = '';
+  document.getElementById('emojiSearchInput').placeholder = t().emojiSearch;
+  renderEmojiCatTabs();
+  renderEmojiRecent();
+  renderEmojiGrid();
+  document.getElementById('emojiOverlay').classList.add('open');
 }
 
 let cardImageBlob = null;
 
-async function generateCardImage(quoteId) {
-  const q = state.quotes.find(q => q.id === quoteId);
+async function saveCardImage() {
+  const q = state.quotes.find(q => q.id === editorQuoteId);
   if (!q) return;
-  const overlay = document.getElementById('imgOverlay');
-  overlay.classList.add('open');
-  document.getElementById('imgPreview').style.display = 'none';
-  document.querySelector('.img-actions').style.display = 'none';
-  document.getElementById('imgHint').style.display = 'none';
 
-  const len = q.text.length;
-  const fontSize = len > 80 ? 22 : len > 40 ? 26 : 32;
-  const authorSize = len > 80 ? 15 : 17;
+  const fontSize = parseInt(document.getElementById('imgFontSize').value);
+  const lineHeightRaw = parseInt(document.getElementById('imgLineHeight').value);
+  const lineHeight = (lineHeightRaw / 10).toFixed(1);
   const fontFamily = getFontFamily(q.fontId);
+  const authorSize = Math.max(12, Math.round(fontSize * 0.6));
 
-  const authorLine = q.author && q.author !== t().defaultAuthor
-    ? `<div style=”font-family:${fontFamily};font-size:${authorSize}px;color:#8a7a6a;margin-top:30px;letter-spacing:2px;”>—— ${escapeHtml(q.author)}${q.source ? '  '+t().sourceWrap(escapeHtml(q.source)) : ''}</div>`
-    : (q.source ? `<div style=”font-family:${fontFamily};font-size:${authorSize}px;color:#8a7a6a;margin-top:30px;letter-spacing:2px;”>${t().sourceWrap(escapeHtml(q.source))}</div>` : '');
+  let authorText = '';
+  if (q.author && q.author !== t().defaultAuthor) {
+    authorText = '—— ' + escapeHtml(q.author) + (q.source ? '  ' + t().sourceWrap(escapeHtml(q.source)) : '');
+  } else if (q.source) {
+    authorText = t().sourceWrap(escapeHtml(q.source));
+  }
+  const authorLine = authorText ? `<div style=”font-family:${fontFamily};font-size:${authorSize}px;color:#8a7a6a;margin-top:16px;letter-spacing:1.5px;”>${authorText}</div>` : '';
+
+  const stickersHtml = editorStickers.map(s =>
+    `<span style=”position:absolute;left:${s.x}%;top:${s.y}%;font-size:${s.size||24}px;transform:rotate(${s.rot||0}deg);line-height:1;”>${s.emoji}</span>`
+  ).join('');
 
   const wrapper = document.createElement('div');
   wrapper.style.cssText = 'position:fixed;left:-9999px;top:0;width:540px;height:540px;';
   wrapper.innerHTML = `<table cellpadding=”0” cellspacing=”0” border=”0” style=”table-layout:fixed;width:540px;height:540px;background:#faf4e8;background-image:radial-gradient(ellipse at 30% 40%,rgba(210,180,140,0.18) 0%,transparent 70%),radial-gradient(ellipse at 75% 70%,rgba(180,160,130,0.12) 0%,transparent 60%);”>
-    <tr><td style=”vertical-align:middle;text-align:center;padding:50px 55px;word-wrap:break-word;”>
-      <div style=”font-family:${fontFamily};font-size:${fontSize}px;line-height:2.5;color:#2d2014;letter-spacing:2px;word-wrap:break-word;word-break:normal;overflow-wrap:break-word;”>${escapeHtml(q.text)}</div>
+    <tr><td style=”vertical-align:middle;text-align:center;padding:50px 55px;word-wrap:break-word;position:relative;”>
+      ${stickersHtml}
+      <div style=”font-family:${fontFamily};font-size:${fontSize}px;line-height:${lineHeight};color:#2d2014;letter-spacing:1.5px;word-wrap:break-word;overflow-wrap:break-word;”>${escapeHtml(q.text)}</div>
       ${authorLine}
     </td></tr>
   </table>`;
   document.body.appendChild(wrapper);
 
   await document.fonts.ready;
-  await new Promise(r => setTimeout(r, 100));
+  await new Promise(r => setTimeout(r, 150));
 
   try {
     const canvas = await html2canvas(wrapper.querySelector('table'), {
@@ -1037,29 +1227,19 @@ async function generateCardImage(quoteId) {
     });
     document.body.removeChild(wrapper);
 
-    const dataUrl = canvas.toDataURL('image/png');
-    document.getElementById('imgPreview').src = dataUrl;
-    document.getElementById('imgPreview').style.display = 'block';
-    document.querySelector('.img-actions').style.display = 'flex';
-    document.getElementById('imgHint').style.display = 'block';
-
-    canvas.toBlob((blob) => { cardImageBlob = blob; }, 'image/png');
+    canvas.toBlob((blob) => {
+      cardImageBlob = blob;
+      const dataUrl = canvas.toDataURL('image/png');
+      if (navigator.share && blob) {
+        const file = new File([blob], 'quote.png', { type: 'image/png' });
+        navigator.share({ files: [file] }).catch(() => downloadImage(dataUrl));
+      } else {
+        downloadImage(dataUrl);
+      }
+    }, 'image/png');
   } catch (e) {
     if (wrapper.parentNode) document.body.removeChild(wrapper);
-    closeImgPreview();
     showToast(lang==='zh'?'生成图片失败':'Failed to generate image');
-  }
-}
-
-function saveCardImage() {
-  const dataUrl = document.getElementById('imgPreview').src;
-  if (!dataUrl) return;
-
-  if (navigator.share && cardImageBlob) {
-    const file = new File([cardImageBlob], 'quote.png', { type: 'image/png' });
-    navigator.share({ files: [file] }).catch(() => downloadImage(dataUrl));
-  } else {
-    downloadImage(dataUrl);
   }
 }
 
@@ -1075,6 +1255,8 @@ function downloadImage(dataUrl) {
 
 function closeImgPreview() {
   document.getElementById('imgOverlay').classList.remove('open');
+  editorQuoteId = null;
+  editorStickers = [];
   cardImageBlob = null;
 }
 
@@ -1188,9 +1370,8 @@ function renderStaticUI() {
   const sel=document.getElementById('quoteCategory'); const cv=sel.value;
   sel.innerHTML=CATEGORIES_KEYS.slice(1).map(c=>`<option value="${c}">${getCategoryDisplay(c)}</option>`).join('');
   sel.value=cv;
-  document.getElementById('imgSaveBtn').innerHTML=t().imgSave;
+  document.getElementById('imgSaveText').textContent=t().imgClose==='Close'?'Save':'保存图片';
   document.getElementById('imgCloseText').textContent=t().imgClose;
-  document.getElementById('imgHint').textContent=t().imgHint;
 }
 
 // --- Service Worker registration ---

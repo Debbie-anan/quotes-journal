@@ -1,6 +1,6 @@
-const CACHE_NAME = 'quotes-journal-v2';
+const CACHE_NAME = 'quotes-journal-v3';
 const ASSETS = [
-  'quotes-app.html',
+  'index.html',
   'manifest.json',
   'https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Dancing+Script:wght@400;700&family=Indie+Flower&family=Liu+Jian+Mao+Cao&family=Long+Cang&family=Ma+Shan+Zheng&family=Patrick+Hand&family=Shadows+Into+Light&family=ZCOOL+KuaiLe&family=ZCOOL+XiaoWei&family=Zhi+Mang+Xing&display=swap'
 ];
