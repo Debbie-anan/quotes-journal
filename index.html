@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#faf4e8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="语录手帐">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json">
+<title>语录手帐</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Dancing+Script:wght@400;700&family=Indie+Flower&family=Liu+Jian+Mao+Cao&family=Long+Cang&family=Ma+Shan+Zheng&family=Patrick+Hand&family=Shadows+Into+Light&family=ZCOOL+KuaiLe&family=ZCOOL+XiaoWei&family=Zhi+Mang+Xing&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #faf4e8;
+  --paper-dark: #f0e4cc;
+  --paper-line: #d4c4a8;
+  --ink: #2d2014;
+  --pencil: #5a4a3a;
+  --pencil-light: #8a7a6a;
+  --red-pen: #c0392b;
+  --blue-pen: #2471a3;
+  --green-pen: #1e8449;
+  --purple-pen: #7d3c98;
+  --orange-pen: #d35400;
+  --tape-yellow: rgba(255, 235, 130, 0.55);
+  --tape-pink: rgba(255, 182, 193, 0.5);
+  --tape-blue: rgba(173, 216, 230, 0.5);
+  --tape-green: rgba(144, 238, 144, 0.45);
+  --tape-purple: rgba(216, 191, 255, 0.5);
+  --note-cream: #fef9ee;
+  --note-yellow: #fff8dc;
+  --note-pink: #fce4ec;
+  --note-blue: #e8f4fd;
+  --note-green: #e8f5e9;
+  --note-purple: #f3e5f5;
+  --note-orange: #fff3e0;
+  --font-hand-zh: 'Ma Shan Zheng', 'ZCOOL KuaiLe', cursive;
+  --font-hand-en: 'Caveat', 'Patrick Hand', cursive;
+  --font-ui: 'ZCOOL KuaiLe', 'Ma Shan Zheng', cursive;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html { scroll-behavior: smooth; overscroll-behavior: none; }
+body {
+  font-family: var(--font-ui);
+  background: var(--paper);
+  color: var(--ink);
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(210,180,140,0.15) 0%, transparent 70%),
+    radial-gradient(ellipse at 80% 20%, rgba(180,160,130,0.1) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 256px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.svg-filters { position: absolute; width: 0; height: 0; overflow: hidden; }
+
+/* --- Spiral binding --- */
+.spiral-binding {
+  position: fixed; top: 0; left: 0; right: 0; height: 28px; z-index: 100;
+  display: flex; justify-content: center; gap: 40px; padding: 0 80px;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(230,218,200,0.95) 0%, rgba(230,218,200,0) 100%);
+}
+.spiral-ring { width: 24px; height: 28px; position: relative; }
+.spiral-ring::before {
+  content: ''; position: absolute; width: 20px; height: 20px;
+  border: 2.5px solid #888; border-radius: 50%; top: 8px; left: 2px;
+  background: linear-gradient(135deg, #ccc, #999);
+  box-shadow: inset 0 1px 2px rgba(255,255,255,0.5), 0 1px 2px rgba(0,0,0,0.15);
+}
+
+/* --- Main container --- */
+.app-container {
+  position: relative; z-index: 1; max-width: 1100px; margin: 0 auto;
+  padding: 48px 24px calc(80px + var(--safe-bottom));
+}
+.app-container::before {
+  content: ''; position: fixed;
+  left: max(calc(50% - 570px), 10px); top: 0; bottom: 0;
+  width: 2px; background: rgba(192,57,43,0.2); z-index: 0;
+}
+
+/* --- Coffee stain --- */
+.coffee-stain {
+  position: fixed; bottom: 60px; right: 40px; width: 90px; height: 85px;
+  border-radius: 50%; pointer-events: none; z-index: 0; transform: rotate(-15deg);
+  background: radial-gradient(ellipse, transparent 40%, rgba(139,90,43,0.06) 50%, rgba(139,90,43,0.04) 60%, transparent 70%);
+}
+
+/* --- Header --- */
+.header { text-align: center; margin-bottom: 28px; position: relative; }
+.header-doodle { display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 8px; }
+.header h1 { font-family: var(--font-hand-zh); font-size: 2.6rem; color: var(--ink); letter-spacing: 4px; position: relative; display: inline-block; }
+.header h1::after { content: ''; position: absolute; bottom: -4px; left: -8px; right: -8px; height: 3px; background: var(--ink); border-radius: 2px; transform: rotate(-0.5deg); opacity: 0.6; }
+.header-subtitle { font-family: var(--font-hand-en); font-size: 1.05rem; color: var(--pencil-light); margin-top: 8px; letter-spacing: 2px; }
+
+/* --- Toolbar --- */
+.toolbar { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+.search-box { position: relative; flex: 0 1 320px; }
+.search-box input {
+  width: 100%; padding: 12px 16px 12px 40px; font-family: var(--font-ui); font-size: 16px;
+  color: var(--ink); background: rgba(255,255,255,0.5);
+  border: 2px solid var(--pencil-light);
+  border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+  outline: none; transition: border-color 0.3s, box-shadow 0.3s;
+}
+.search-box input::placeholder { color: var(--pencil-light); font-family: var(--font-ui); }
+.search-box input:focus { border-color: var(--blue-pen); box-shadow: 2px 3px 0 rgba(36,113,163,0.15); }
+.search-box svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--pencil-light); }
+
+.btn-add {
+  display: flex; align-items: center; gap: 6px; padding: 12px 20px;
+  font-family: var(--font-ui); font-size: 1rem; color: var(--paper);
+  background: var(--ink); border: 2px solid var(--ink);
+  border-radius: 15px 225px 15px 255px / 225px 15px 255px 15px;
+  cursor: pointer; transition: all 0.2s; transform: rotate(-0.5deg);
+  min-height: 48px;
+}
+.btn-add:hover { transform: rotate(0.5deg) scale(1.05); box-shadow: 3px 4px 0 rgba(0,0,0,0.15); }
+.btn-add:active { transform: scale(0.97); }
+
+/* --- Category Tabs --- */
+.category-tabs { display: flex; justify-content: center; gap: 4px; margin-bottom: 24px; flex-wrap: wrap; overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 4px 0; }
+.tab {
+  padding: 8px 16px; font-family: var(--font-ui); font-size: 0.9rem;
+  color: var(--pencil); background: transparent; border: 2px dashed transparent;
+  border-radius: 4px; cursor: pointer; transition: all 0.2s; position: relative;
+  white-space: nowrap; min-height: 44px; display: flex; align-items: center;
+}
+.tab:hover { color: var(--ink); border-color: var(--pencil-light); }
+.tab.active { color: var(--ink); background: rgba(255,255,255,0.5); border: 2px solid var(--pencil); border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px; font-weight: bold; }
+.tab.active::after { content: ''; position: absolute; bottom: -2px; left: 20%; right: 20%; height: 2.5px; background: var(--red-pen); border-radius: 2px; transform: rotate(-1deg); }
+
+/* --- Stats --- */
+.stats-bar { display: flex; justify-content: center; gap: 24px; margin-bottom: 24px; font-size: 0.9rem; color: var(--pencil-light); font-family: var(--font-hand-en); }
+.stat-item { display: flex; align-items: center; gap: 4px; }
+.stat-num { font-size: 1.3rem; color: var(--pencil); font-weight: 700; }
+
+/* --- Quote Grid --- */
+.quotes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 28px; perspective: 1000px; }
+
+/* --- Quote Card --- */
+.quote-card {
+  position: relative; padding: 28px 24px 20px;
+  border: 2px solid var(--pencil);
+  border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+  transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.35s;
+  cursor: default;
+  animation: cardDrop 0.5s cubic-bezier(0.34,1.2,0.64,1) backwards;
+  filter: url(#sketchy);
+  overflow: visible;
+}
+.quote-card:nth-child(odd) { transform: rotate(-0.8deg); }
+.quote-card:nth-child(even) { transform: rotate(0.6deg); }
+.quote-card:nth-child(3n) { transform: rotate(-0.3deg); }
+.quote-card:hover { transform: rotate(0deg) translateY(-6px) !important; box-shadow: 4px 6px 0 rgba(0,0,0,0.08), 8px 12px 20px rgba(0,0,0,0.06); z-index: 2; }
+
+.quote-card::before {
+  content: ''; position: absolute; width: 60px; height: 18px; top: -9px; left: 50%;
+  transform: translateX(-50%) rotate(-2deg); border-radius: 2px; z-index: 3; opacity: 0.85;
+}
+.quote-card:nth-child(6n+1)::before { background: var(--tape-yellow); }
+.quote-card:nth-child(6n+2)::before { background: var(--tape-pink); }
+.quote-card:nth-child(6n+3)::before { background: var(--tape-blue); }
+.quote-card:nth-child(6n+4)::before { background: var(--tape-green); }
+.quote-card:nth-child(6n+5)::before { background: var(--tape-purple); }
+.quote-card:nth-child(6n+6)::before { background: var(--tape-yellow); transform: translateX(-50%) rotate(1.5deg); }
+
+.quote-card:nth-child(4n)::after {
+  content: ''; position: absolute; top: -8px; right: 20px;
+  width: 16px; height: 40px; border: 2px solid #999;
+  border-radius: 8px 8px 0 0; border-bottom: none; transform: rotate(5deg); z-index: 4;
+}
+
+/* --- Stickers on cards --- */
+.card-sticker {
+  position: absolute; font-size: 1.6rem; cursor: pointer; z-index: 5;
+  transition: transform 0.2s; line-height: 1; user-select: none;
+  filter: drop-shadow(1px 1px 1px rgba(0,0,0,0.1));
+}
+.card-sticker:hover { transform: scale(1.3) !important; }
+.card-sticker:active { transform: scale(0.8) !important; }
+
+.quote-text {
+  font-family: var(--font-hand-zh); font-size: 1.25rem; line-height: 1.8;
+  color: var(--ink); margin-bottom: 16px; position: relative;
+}
+.quote-text::before {
+  content: '\201C'; font-family: var(--font-hand-en); font-size: 3rem;
+  color: var(--pencil-light); opacity: 0.3; position: absolute; top: -16px; left: -10px; line-height: 1;
+}
+
+.quote-author { font-family: var(--font-hand-zh); font-size: 1rem; color: var(--pencil); text-align: right; margin-bottom: 4px; }
+.quote-author::before { content: '—— '; }
+.quote-source { font-family: var(--font-ui); font-size: 0.85rem; color: var(--pencil-light); text-align: right; margin-bottom: 12px; }
+
+.card-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 8px; border-top: 1.5px dashed var(--paper-line); }
+.card-category { font-family: var(--font-ui); font-size: 0.8rem; color: var(--pencil-light); padding: 2px 10px; border: 1.5px solid var(--paper-line); border-radius: 12px; }
+.card-actions { display: flex; gap: 4px; }
+
+.card-btn {
+  background: none; border: none; cursor: pointer; padding: 6px;
+  border-radius: 50%; transition: all 0.2s; display: flex; align-items: center; justify-content: center;
+  min-width: 36px; min-height: 36px;
+}
+.card-btn:hover { background: rgba(0,0,0,0.06); transform: scale(1.15); }
+.card-btn svg { width: 18px; height: 18px; stroke: var(--pencil-light); fill: none; stroke-width: 2; transition: all 0.2s; }
+.card-btn.fav-btn.active svg { fill: var(--red-pen); stroke: var(--red-pen); }
+.card-btn.fav-btn.active { animation: heartPop 0.4s cubic-bezier(0.34,1.56,0.64,1); }
+.card-btn.del-btn:hover svg { stroke: var(--red-pen); }
+.card-btn.sticker-btn { font-size: 1rem; }
+.card-btn.sticker-btn:hover { background: rgba(255,200,0,0.15); }
+
+/* --- Emoji picker overlay --- */
+.emoji-overlay {
+  position: fixed; inset: 0; background: rgba(45,32,20,0.4); backdrop-filter: blur(2px);
+  z-index: 1500; display: flex; align-items: flex-end; justify-content: center;
+  opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s;
+}
+.emoji-overlay.open { opacity: 1; visibility: visible; }
+
+.emoji-panel {
+  background: var(--paper); border: 2.5px solid var(--pencil);
+  border-radius: 20px 20px 0 0; padding: 16px 16px calc(12px + var(--safe-bottom));
+  width: 100%; max-width: 420px; max-height: 55vh; max-height: 55dvh;
+  display: flex; flex-direction: column;
+  transform: translateY(100%); transition: transform 0.35s cubic-bezier(0.34,1.2,0.64,1);
+}
+.emoji-overlay.open .emoji-panel { transform: translateY(0); }
+
+.emoji-panel-handle { width: 40px; height: 4px; background: var(--paper-line); border-radius: 2px; margin: 0 auto 12px; flex-shrink: 0; }
+
+.emoji-search-box {
+  position: relative; margin-bottom: 10px; flex-shrink: 0;
+}
+.emoji-search-box input {
+  width: 100%; padding: 10px 14px 10px 36px; font-family: var(--font-ui); font-size: 15px;
+  color: var(--ink); background: rgba(255,255,255,0.5); border: 2px solid var(--paper-line);
+  border-radius: 10px; outline: none; transition: border-color 0.2s;
+}
+.emoji-search-box input:focus { border-color: var(--blue-pen); }
+.emoji-search-box input::placeholder { color: var(--pencil-light); font-family: var(--font-ui); }
+.emoji-search-box svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--pencil-light); }
+
+.emoji-recent { flex-shrink: 0; margin-bottom: 8px; }
+.emoji-recent-label { font-family: var(--font-ui); font-size: 0.75rem; color: var(--pencil-light); margin-bottom: 4px; }
+.emoji-recent-row { display: flex; gap: 2px; flex-wrap: wrap; }
+
+.emoji-cat-tabs {
+  display: flex; gap: 2px; flex-shrink: 0; margin-bottom: 8px;
+  overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 2px 0;
+}
+.emoji-cat-tabs::-webkit-scrollbar { height: 0; }
+.emoji-cat-tab {
+  flex: 0 0 auto; padding: 6px 10px; border: none; background: transparent;
+  font-size: 1.15rem; cursor: pointer; border-radius: 8px; transition: background 0.15s;
+  min-width: 38px; min-height: 38px; display: flex; align-items: center; justify-content: center;
+}
+.emoji-cat-tab:hover { background: rgba(0,0,0,0.05); }
+.emoji-cat-tab.active { background: rgba(255,200,0,0.2); }
+
+.emoji-scroll { overflow-y: auto; -webkit-overflow-scrolling: touch; flex: 1; min-height: 0; }
+.emoji-section-label { font-family: var(--font-ui); font-size: 0.75rem; color: var(--pencil-light); margin: 10px 0 4px; position: sticky; top: 0; background: var(--paper); padding: 2px 0; z-index: 1; }
+.emoji-section-label:first-child { margin-top: 0; }
+.emoji-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.emoji-pick {
+  font-size: 1.5rem; padding: 4px; border: none; background: transparent;
+  cursor: pointer; border-radius: 8px; transition: all 0.12s;
+  min-width: 40px; min-height: 40px; display: flex; align-items: center; justify-content: center;
+}
+.emoji-pick:hover { background: rgba(255,200,0,0.2); transform: scale(1.15); }
+.emoji-pick:active { transform: scale(0.85); }
+
+.emoji-no-results { text-align: center; padding: 24px; font-family: var(--font-ui); font-size: 0.9rem; color: var(--pencil-light); }
+
+@media (min-width: 700px) {
+  .emoji-overlay { align-items: center; }
+  .emoji-panel { border-radius: 15px 225px 15px 255px / 225px 15px 255px 15px; max-height: 480px; }
+  .emoji-panel-handle { display: none; }
+  .emoji-grid { grid-template-columns: repeat(9, 1fr); }
+}
+
+/* --- Empty state --- */
+.empty-state { text-align: center; padding: 60px 20px; color: var(--pencil-light); }
+.empty-state svg { width: 100px; height: 100px; margin-bottom: 16px; opacity: 0.4; }
+.empty-state h3 { font-family: var(--font-hand-zh); font-size: 1.4rem; margin-bottom: 8px; color: var(--pencil); }
+.empty-state p { font-family: var(--font-ui); font-size: 0.95rem; }
+
+/* --- Modal --- */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(45,32,20,0.4); backdrop-filter: blur(2px);
+  z-index: 1000; display: flex; align-items: flex-end; justify-content: center;
+  padding: 0; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s;
+}
+.modal-overlay.open { opacity: 1; visibility: visible; }
+
+.modal {
+  background: var(--paper); border: 2.5px solid var(--pencil);
+  border-radius: 20px 20px 0 0; padding: 28px 24px calc(20px + var(--safe-bottom));
+  width: 100%; max-width: 520px; position: relative;
+  transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.34,1.2,0.64,1);
+  max-height: 92vh; max-height: 92dvh; overflow-y: auto; -webkit-overflow-scrolling: touch;
+}
+.modal-overlay.open .modal { transform: translateY(0); }
+
+.modal-handle { width: 40px; height: 4px; background: var(--paper-line); border-radius: 2px; margin: 0 auto 16px; }
+.modal-title { font-family: var(--font-hand-zh); font-size: 1.5rem; color: var(--ink); margin-bottom: 20px; text-align: center; }
+
+.form-group { margin-bottom: 16px; }
+.form-group label { display: block; font-family: var(--font-ui); font-size: 0.9rem; color: var(--pencil); margin-bottom: 6px; }
+.form-group textarea, .form-group input, .form-group select {
+  width: 100%; padding: 12px 14px; font-family: var(--font-hand-zh); font-size: 16px;
+  color: var(--ink); background: rgba(255,255,255,0.4);
+  border: 2px solid var(--paper-line); border-radius: 8px; outline: none; transition: border-color 0.3s;
+}
+.form-group textarea { min-height: 100px; resize: vertical; line-height: 1.8; }
+.form-group textarea:focus, .form-group input:focus, .form-group select:focus { border-color: var(--blue-pen); }
+.form-group select {
+  font-family: var(--font-ui); cursor: pointer; appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235a4a3a' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px;
+}
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* --- Font picker --- */
+.font-picker-label { display: block; font-family: var(--font-ui); font-size: 0.9rem; color: var(--pencil); margin-bottom: 8px; }
+.font-picker {
+  display: flex; gap: 8px; overflow-x: auto; -webkit-overflow-scrolling: touch;
+  padding: 4px 0 12px; scroll-snap-type: x mandatory;
+}
+.font-picker::-webkit-scrollbar { height: 4px; }
+.font-picker::-webkit-scrollbar-thumb { background: var(--paper-line); border-radius: 2px; }
+.font-option {
+  flex: 0 0 auto; padding: 10px 14px; border: 2px solid var(--paper-line);
+  border-radius: 10px; cursor: pointer; transition: all 0.2s;
+  text-align: center; min-width: 80px; scroll-snap-align: start; background: rgba(255,255,255,0.3);
+}
+.font-option:hover { border-color: var(--pencil-light); background: rgba(255,255,255,0.6); }
+.font-option.active { border-color: var(--ink); background: rgba(255,255,255,0.7); box-shadow: 2px 3px 0 rgba(0,0,0,0.08); }
+.font-option .font-sample { font-size: 1.2rem; line-height: 1.4; color: var(--ink); margin-bottom: 2px; }
+.font-option .font-name { font-family: var(--font-ui); font-size: 0.65rem; color: var(--pencil-light); }
+
+.modal-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px; }
+.modal-btn {
+  padding: 12px 28px; font-family: var(--font-ui); font-size: 1rem;
+  border: 2px solid var(--pencil);
+  border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+  cursor: pointer; transition: all 0.2s; min-height: 48px;
+}
+.modal-btn.cancel { background: transparent; color: var(--pencil); }
+.modal-btn.cancel:hover { background: rgba(0,0,0,0.04); }
+.modal-btn.save { background: var(--ink); color: var(--paper); }
+.modal-btn.save:hover { transform: scale(1.04); box-shadow: 2px 3px 0 rgba(0,0,0,0.12); }
+
+/* --- Confirm --- */
+.confirm-overlay {
+  position: fixed; inset: 0; background: rgba(45,32,20,0.5); z-index: 2000;
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+  opacity: 0; visibility: hidden; transition: opacity 0.25s, visibility 0.25s;
+}
+.confirm-overlay.open { opacity: 1; visibility: visible; }
+.confirm-box { background: var(--paper); border: 2px solid var(--pencil); border-radius: 15px 225px 15px 255px / 225px 15px 255px 15px; padding: 28px; max-width: 360px; text-align: center; }
+.confirm-box p { font-family: var(--font-ui); font-size: 1.1rem; margin-bottom: 20px; color: var(--ink); }
+.confirm-box .modal-actions { justify-content: center; }
+
+/* --- Toast --- */
+.toast {
+  position: fixed; bottom: calc(80px + var(--safe-bottom)); left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--ink); color: var(--paper); padding: 12px 28px;
+  border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+  font-family: var(--font-ui); font-size: 0.95rem; z-index: 3000;
+  transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s;
+  opacity: 0; pointer-events: none; white-space: nowrap;
+}
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+/* --- Animations --- */
+@keyframes cardDrop { from { opacity: 0; transform: translateY(-20px) rotate(-3deg); } to { opacity: 1; } }
+@keyframes heartPop { 0% { transform: scale(1); } 50% { transform: scale(1.4); } 100% { transform: scale(1); } }
+@keyframes fadeSlideOut { to { opacity: 0; transform: translateX(-40px) rotate(-5deg); } }
+@keyframes stickerPop { 0% { transform: scale(0) rotate(-20deg); } 60% { transform: scale(1.3); } 100% { transform: scale(1); } }
+
+/* --- Doodles --- */
+.doodle { position: absolute; pointer-events: none; opacity: 0.12; }
+.doodle-star { top: 80px; right: 60px; }
+.doodle-heart { bottom: 200px; left: 40px; }
+.doodle-arrow { top: 300px; right: 30px; transform: rotate(20deg); }
+
+/* --- Language toggle --- */
+.lang-toggle {
+  position: fixed; top: 36px; right: 16px; z-index: 101;
+  display: flex; background: rgba(255,255,255,0.5);
+  border: 2px solid var(--pencil-light);
+  border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+  overflow: hidden;
+}
+.lang-toggle button {
+  font-family: var(--font-hand-en); font-size: 0.85rem; padding: 6px 12px;
+  border: none; background: transparent; color: var(--pencil-light);
+  cursor: pointer; transition: all 0.2s; font-weight: 600; min-height: 36px;
+}
+.lang-toggle button.active { background: var(--ink); color: var(--paper); }
+.lang-toggle button:hover:not(.active) { color: var(--ink); }
+
+/* --- FAB --- */
+.fab {
+  position: fixed; bottom: calc(20px + var(--safe-bottom)); right: 20px;
+  width: 56px; height: 56px; background: var(--ink); color: var(--paper);
+  border: none; border-radius: 50%; font-size: 1.8rem; cursor: pointer; z-index: 50;
+  box-shadow: 3px 4px 0 rgba(0,0,0,0.15), 0 4px 16px rgba(0,0,0,0.15);
+  transition: transform 0.2s; font-family: var(--font-hand-en);
+  display: flex; align-items: center; justify-content: center;
+}
+.fab:hover { transform: scale(1.1) rotate(5deg); }
+.fab:active { transform: scale(0.95); }
+
+/* --- Edit hint --- */
+.edit-indicator { position: absolute; top: 8px; right: 8px; font-family: var(--font-hand-en); font-size: 0.75rem; color: var(--blue-pen); opacity: 0; transition: opacity 0.2s; }
+.quote-card:hover .edit-indicator { opacity: 0.6; }
+
+/* --- Scrollbar --- */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--paper-line); border-radius: 3px; }
+
+/* --- Responsive --- */
+@media (min-width: 700px) {
+  .modal-overlay { align-items: center; padding: 20px; }
+  .modal { border-radius: 15px 225px 15px 255px / 225px 15px 255px 15px; max-height: 90vh; }
+  .modal::before {
+    content: ''; position: absolute; width: 80px; height: 22px; top: -11px; left: 50%;
+    transform: translateX(-50%) rotate(-1.5deg); background: var(--tape-yellow); border-radius: 2px; z-index: 2;
+  }
+  .modal-handle { display: none; }
+  .fab { display: none; }
+  .btn-add-desktop { display: flex; }
+}
+@media (max-width: 699px) {
+  .header h1 { font-size: 2rem; }
+  .quotes-grid { grid-template-columns: 1fr; gap: 20px; }
+  .toolbar { flex-direction: column; }
+  .search-box { flex: 1 1 100%; }
+  .form-row { grid-template-columns: 1fr; }
+  .spiral-binding { gap: 24px; padding: 0 40px; }
+  .app-container::before { display: none; }
+  .app-container { padding: 48px 16px calc(80px + var(--safe-bottom)); }
+  .btn-add { display: none; }
+  .lang-toggle { top: 36px; right: 12px; }
+}
+</style>
+</head>
+<body>
+
+<svg class="svg-filters"><defs>
+  <filter id="sketchy">
+    <feTurbulence type="turbulence" baseFrequency="0.015" numOctaves="3" result="noise" seed="2"/>
+    <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.5" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+</defs></svg>
+
+<div class="spiral-binding" id="spiralBinding"></div>
+
+<div class="lang-toggle" id="langToggle">
+  <button class="active" data-lang="zh" onclick="setLang('zh')">中文</button>
+  <button data-lang="en" onclick="setLang('en')">EN</button>
+</div>
+
+<svg class="doodle doodle-star" width="50" height="50" viewBox="0 0 50 50"><path d="M25 2 L30 18 L48 18 L34 28 L39 46 L25 35 L11 46 L16 28 L2 18 L20 18 Z" fill="none" stroke="#5a4a3a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+<svg class="doodle doodle-heart" width="48" height="44" viewBox="0 0 48 44"><path d="M24 40 C8 28 2 18 2 12 C2 4 10 2 16 6 C20 8 22 12 24 16 C26 12 28 8 32 6 C38 2 46 4 46 12 C46 18 40 28 24 40Z" fill="none" stroke="#c0392b" stroke-width="1.5" stroke-linecap="round"/></svg>
+<svg class="doodle doodle-arrow" width="60" height="30" viewBox="0 0 60 30"><path d="M2 15 Q15 5 30 15 Q45 25 58 15" fill="none" stroke="#5a4a3a" stroke-width="1.5" stroke-linecap="round"/><path d="M52 10 L58 15 L52 20" fill="none" stroke="#5a4a3a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+
+<div class="coffee-stain"></div>
+
+<div class="app-container">
+  <header class="header">
+    <div class="header-doodle">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--pencil-light)" stroke-width="1.5" stroke-linecap="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      <h1>语录手帐</h1>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--pencil-light)" stroke-width="1.5" stroke-linecap="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+    </div>
+    <p class="header-subtitle">Collect your favorite quotes ~</p>
+  </header>
+
+  <div class="toolbar">
+    <div class="search-box">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="searchInput" placeholder="搜索语录、作者...">
+    </div>
+    <button class="btn-add" onclick="openModal()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      <span class="btn-add-text">记一笔</span>
+    </button>
+  </div>
+
+  <div class="category-tabs" id="categoryTabs"></div>
+  <div class="stats-bar" id="statsBar"></div>
+  <div class="quotes-grid" id="quotesGrid"></div>
+</div>
+
+<button class="fab" onclick="openModal()">+</button>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h2 class="modal-title" id="modalTitle">记录一条语录</h2>
+    <form id="quoteForm" onsubmit="handleSubmit(event)">
+      <div class="form-group">
+        <label id="labelContent">语录内容 *</label>
+        <textarea id="quoteText" placeholder="写下触动你的那句话..." required></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label id="labelAuthor">作者</label>
+          <input type="text" id="quoteAuthor" placeholder="佚名">
+        </div>
+        <div class="form-group">
+          <label id="labelSource">出处</label>
+          <input type="text" id="quoteSource" placeholder="书名、电影...">
+        </div>
+      </div>
+      <div class="form-group">
+        <label id="labelCategory">分类</label>
+        <select id="quoteCategory">
+          <option value="人生">人生</option>
+          <option value="爱情">爱情</option>
+          <option value="励志">励志</option>
+          <option value="文学">文学</option>
+          <option value="哲学">哲学</option>
+          <option value="幽默">幽默</option>
+          <option value="其他">其他</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label id="labelFont" class="font-picker-label">字体风格</label>
+        <div class="font-picker" id="fontPicker"></div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="modal-btn cancel" onclick="closeModal()">算了</button>
+        <button type="submit" class="modal-btn save">收好!</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Confirm -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <p id="confirmMsg">确定要撕掉这条语录吗？</p>
+    <div class="modal-actions">
+      <button class="modal-btn cancel" onclick="closeConfirm()" id="confirmCancelBtn">留着吧</button>
+      <button class="modal-btn save" onclick="confirmDelete()" id="confirmDeleteBtn" style="background:var(--red-pen);border-color:var(--red-pen);">撕掉!</button>
+    </div>
+  </div>
+</div>
+
+<!-- Emoji Picker -->
+<div class="emoji-overlay" id="emojiOverlay" onclick="if(event.target===this)closeEmojiPicker()">
+  <div class="emoji-panel">
+    <div class="emoji-panel-handle"></div>
+    <div class="emoji-search-box">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="emojiSearchInput" placeholder="搜索 emoji...">
+    </div>
+    <div class="emoji-recent" id="emojiRecent"></div>
+    <div class="emoji-cat-tabs" id="emojiCatTabs"></div>
+    <div class="emoji-scroll" id="emojiScroll"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const STORAGE_KEY = 'quotes-notebook-data';
+const CARD_COLORS = ['cream','yellow','pink','blue','green','purple','orange'];
+
+const FONT_OPTIONS = [
+  { id: 'ma-shan-zheng', name: '马善政', family: "'Ma Shan Zheng', cursive", sample: '手写体' },
+  { id: 'zcool-kuaile', name: '快乐体', family: "'ZCOOL KuaiLe', cursive", sample: '快乐体' },
+  { id: 'zhi-mang-xing', name: '志芒行', family: "'Zhi Mang Xing', cursive", sample: '行书' },
+  { id: 'liu-jian-mao-cao', name: '毛草', family: "'Liu Jian Mao Cao', cursive", sample: '草书' },
+  { id: 'long-cang', name: '龙藏', family: "'Long Cang', cursive", sample: '龙藏体' },
+  { id: 'zcool-xiaowei', name: '小薇', family: "'ZCOOL XiaoWei', serif", sample: '小薇体' },
+  { id: 'caveat', name: 'Caveat', family: "'Caveat', cursive", sample: 'Handwriting' },
+  { id: 'indie-flower', name: 'Indie', family: "'Indie Flower', cursive", sample: 'Flower' },
+  { id: 'dancing-script', name: 'Dancing', family: "'Dancing Script', cursive", sample: 'Script' },
+  { id: 'shadows-into-light', name: 'Shadows', family: "'Shadows Into Light', cursive", sample: 'Light' },
+  { id: 'patrick-hand', name: 'Patrick', family: "'Patrick Hand', cursive", sample: 'Hand' },
+];
+
+const EMOJI_DATA = {
+  recent: { icon:'🕐', emojis:[] },
+  smileys: { icon:'😊', emojis:['😀','😃','😄','😁','😆','😅','🤣','😂','🙂','😉','😊','😇','🥰','😍','🤩','😘','😗','😚','😋','😛','😜','🤪','😝','🤑','🤗','🤭','🫢','🤫','🫣','🤔','🫡','🤐','🤨','😐','😑','😶','🫥','😏','😒','🙄','😬','😮‍💨','🤥','😌','😔','😪','🤤','😴','😷','🤒','🤕','🤢','🤮','🥵','🥶','🥴','😵','😵‍💫','🤯','🤠','🥳','🥸','😎','🤓','🧐','😕','🫤','😟','🙁','😮','😯','😲','😳','🥺','🥹','😦','😧','😨','😰','😥','😢','😭','😱','😖','😣','😞','😓','😩','😫','🥱','😤','😡','😠','🤬','😈','👿','💀','☠️','💩','🤡','👹','👺','👻','👽','👾','🤖'] },
+  gestures: { icon:'👋', emojis:['👋','🤚','🖐️','✋','🖖','🫱','🫲','🫳','🫴','👌','🤌','🤏','✌️','🤞','🫰','🤟','🤘','🤙','👈','👉','👆','🖕','👇','☝️','🫵','👍','👎','✊','👊','🤛','🤜','👏','🙌','🫶','👐','🤲','🤝','🙏','✍️','💅','🤳','💪','🦾','🦿','🦵','🦶','👂','🦻','👃','👀','👁️','👅','👄','🫦','💋','🧠','🫀','🫁','🦷','🦴'] },
+  people: { icon:'👶', emojis:['👶','🧒','👦','👧','🧑','👱','👨','🧔','👩','🧓','👴','👵','👮','🕵️','💂','🥷','👷','🫅','🤴','👸','👳','👲','🧕','🤵','👰','🤰','🫃','🫄','🤱','👼','🎅','🤶','🦸','🦹','🧙','🧚','🧛','🧜','🧝','🧞','🧟','🧌','💆','💇','🚶','🧍','🧎','🏃','💃','🕺','👯','🧖','🧗','🤸','⛹️','🏋️','🚴','🚵','🤼','🤽','🤾','🤺','⛷️','🏂','🏄','🚣','🏊','🤽','🏇','🧘'] },
+  animals: { icon:'🐱', emojis:['🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐻‍❄️','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🙈','🙉','🙊','🐒','🐔','🐧','🐦','🐤','🐣','🐥','🦆','🦅','🦉','🦇','🐺','🐗','🐴','🦄','🫎','🫏','🐝','🪱','🐛','🦋','🐌','🐞','🐜','🪲','🪳','🦟','🦗','🕷️','🦂','🐢','🐍','🦎','🦖','🦕','🐙','🦑','🦐','🦞','🦀','🐡','🐠','🐟','🐬','🐳','🐋','🦈','🪸','🐊','🐅','🐆','🦓','🫏','🦍','🦧','🐘','🦛','🦏','🐪','🐫','🦒','🦘','🦬','🐃','🐂','🐄','🐎','🐖','🐏','🐑','🦙','🐐','🦌','🐕','🐩','🦮','🐈','🐈‍⬛','🪶','🐓','🦃','🦤','🦚','🦜','🦢','🦩','🕊️','🐇','🦝','🦨','🦡','🦫','🦦','🦥','🐁','🐀','🐿️','🦔'] },
+  nature: { icon:'🌿', emojis:['🌵','🎄','🌲','🌳','🌴','🪵','🌱','🌿','☘️','🍀','🎍','🪴','🎋','🍃','🍂','🍁','🪺','🪹','🍄','🌾','💐','🌷','🌹','🥀','🌺','🌸','🌼','🌻','🌞','🌝','🌛','🌜','🌚','🌕','🌖','🌗','🌘','🌑','🌒','🌓','🌔','🌙','🌎','🌍','🌏','🪐','💫','⭐','🌟','✨','⚡','☄️','💥','🔥','🌪️','🌈','☀️','🌤️','⛅','🌥️','☁️','🌦️','🌧️','⛈️','🌩️','🌨️','❄️','☃️','⛄','🌬️','💨','💧','💦','🫧','☔','☂️','🌊','🌫️'] },
+  food: { icon:'🍕', emojis:['🍏','🍎','🍐','🍊','🍋','🍌','🍉','🍇','🍓','🫐','🍈','🍒','🍑','🥭','🍍','🥥','🥝','🍅','🍆','🥑','🫛','🥦','🥬','🥒','🌶️','🫑','🌽','🥕','🫒','🧄','🧅','🫘','🥔','🍠','🥐','🥯','🍞','🥖','🥨','🧀','🥚','🍳','🧈','🥞','🧇','🥓','🥩','🍗','🍖','🦴','🌭','🍔','🍟','🍕','🫓','🥪','🥙','🧆','🌮','🌯','🫔','🥗','🥘','🫕','🥫','🍝','🍜','🍲','🍛','🍣','🍱','🥟','🦪','🍤','🍙','🍚','🍘','🍥','🥠','🥮','🍢','🍡','🍧','🍨','🍦','🥧','🧁','🍰','🎂','🍮','🍭','🍬','🍫','🍿','🍩','🍪','🌰','🥜','🫘','🍯','🥛','🫗','🍼','🧋','☕','🍵','🧃','🥤','🍶','🍺','🍻','🥂','🍷','🥃','🍸','🍹','🧉','🍾','🧊'] },
+  travel: { icon:'✈️', emojis:['🚗','🚕','🚙','🚌','🚎','🏎️','🚓','🚑','🚒','🚐','🛻','🚚','🚛','🚜','🛵','🏍️','🛺','🚲','🛴','🛹','🛼','🚏','🛣️','🛤️','🚡','🚠','🚟','🚃','🚋','🚞','🚝','🚄','🚅','🚈','🚂','🚆','🚇','🚊','🚉','✈️','🛫','🛬','🛩️','🚀','🛸','🚁','🛶','⛵','🚤','🛥️','🛳️','⛴️','🚢','🗼','🏰','🏯','🏟️','🎡','🎢','🎠','⛲','⛱️','🏖️','🏝️','🏜️','🌋','⛰️','🏔️','🗻','🏕️','🛖','🏠','🏡','🏘️','🏚️','🏗️','🏢','🏬','🏣','🏤','🏥','🏦','🏨','🏪','🏫','🏩','💒','🏛️','⛪','🕌','🕍','🛕','🕋','⛩️','🗺️','🗾','🧭','🏔️','🗽','🎆','🎇','🎑','🌄','🌅','🌠','🌃','🌆','🌇','🌉'] },
+  objects: { icon:'💡', emojis:['⌚','📱','📲','💻','⌨️','🖥️','🖨️','🖱️','🖲️','💾','💿','📀','📷','📸','📹','🎥','📽️','🎞️','📞','☎️','📟','📠','📺','📻','🎙️','🎚️','🎛️','🧭','⏱️','⏲️','⏰','🕰️','⌛','📡','🔋','🔌','💡','🔦','🕯️','🪔','🧯','🗑️','🛢️','🛒','⚙️','🧰','🪛','🔧','🔩','🪜','🧲','🔬','🔭','📡','💉','🩸','💊','🩹','🩼','🩺','🩻','🚪','🪞','🪟','🛏️','🛋️','🪑','🚽','🪠','🚿','🛁','🪤','🧴','🧷','🧹','🧺','🧻','🪣','🧼','🫧','🧽','🧯','🪒','🧲'] },
+  activities: { icon:'⚽', emojis:['⚽','🏀','🏈','⚾','🥎','🎾','🏐','🏉','🥏','🎱','🪀','🏓','🏸','🏒','🏑','🥍','🏏','🪃','🥅','⛳','🪁','🏹','🎣','🤿','🥊','🥋','🎽','🛹','🛼','🛷','⛸️','🥌','🎿','⛷️','🎯','🪀','🪁','🔮','🪄','🧿','🪬','🎮','🕹️','🎰','🎲','🧩','🧸','🪅','🪩','🪆','♠️','♥️','♦️','♣️','♟️','🃏','🀄','🎴','🎭','🖼️','🎨','🧵','🪡','🧶','🪢'] },
+  symbols: { icon:'❤️', emojis:['❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','💔','❤️‍🔥','❤️‍🩹','❣️','💕','💞','💓','💗','💖','💘','💝','💟','☮️','✝️','☪️','🕉️','☸️','🪯','✡️','🔯','🕎','☯️','☦️','🛐','⛎','♈','♉','♊','♋','♌','♍','♎','♏','♐','♑','♒','♓','🆔','⚛️','✨','💫','💎','🔥','💥','⚡','🎵','🎶','🎼','🎧','🎤','🎹','🥁','🎷','🎺','🎸','🪕','🎻','🪗','📣','📢','🔔','🔕','🏴','🏁','🚩','🏳️','🏳️‍🌈'] },
+  flags: { icon:'🏁', emojis:['🏁','🚩','🎌','🏴','🏳️','🏳️‍🌈','🏳️‍⚧️','🇨🇳','🇺🇸','🇬🇧','🇯🇵','🇰🇷','🇫🇷','🇩🇪','🇪🇸','🇮🇹','🇷🇺','🇧🇷','🇮🇳','🇨🇦','🇦🇺','🇲🇽','🇸🇬','🇹🇭','🇻🇳','🇮🇩','🇲🇾','🇵🇭','🇹🇼','🇭🇰'] },
+};
+
+const EMOJI_SEARCH_TAGS = {
+  '😊':'happy smile','😍':'love heart eyes','🥺':'pleading please','😭':'cry sad','🤔':'think hmm','😤':'angry huff','🥰':'love hearts','😎':'cool sunglasses',
+  '🌸':'cherry blossom flower','🌿':'herb leaf green','🌙':'moon night','⭐':'star','🌈':'rainbow','🍃':'leaf wind','🌺':'flower hibiscus','🌻':'sunflower',
+  '📚':'books read','✏️':'pencil write','💌':'love letter','🎵':'music note','🎨':'art palette','🕯️':'candle','☕':'coffee','🧸':'teddy bear',
+  '❤️':'heart love red','💛':'heart yellow','💚':'heart green','💜':'heart purple','✨':'sparkle star','💫':'dizzy star','💎':'gem diamond','🦋':'butterfly',
+  '🔥':'fire hot','🌊':'wave ocean','☁️':'cloud','🍂':'fall autumn','💗':'heart growing','🤍':'white heart','🫧':'bubbles','🪽':'wing fly',
+  '🎀':'ribbon bow','📷':'camera photo','🪴':'plant pot','🍰':'cake sweet','🧋':'boba tea milk','🍡':'dango sweet','🎐':'wind chime','🏮':'lantern',
+  '🪭':'fan','🐱':'cat','🐶':'dog','🐰':'rabbit bunny','🦊':'fox','🐻':'bear','🐼':'panda','🦁':'lion',
+  '🌹':'rose flower red','🌷':'tulip','💐':'bouquet flowers','🥀':'wilted flower','☀️':'sun','🌤️':'sun cloud','❄️':'snow','🍕':'pizza',
+  '🍦':'ice cream','🎂':'birthday cake','🍩':'donut','🍪':'cookie','🧁':'cupcake','🍭':'lollipop','🍫':'chocolate','🍓':'strawberry',
+  '✈️':'airplane travel','🚀':'rocket space','🏠':'house home','🏖️':'beach','⛰️':'mountain','🌅':'sunrise','🌄':'sunset','🎡':'ferris wheel',
+  '🎮':'game controller','🎲':'dice','🧩':'puzzle','🎯':'target','🎪':'circus tent','🎠':'carousel','🎢':'roller coaster',
+  '🎹':'piano music','🎸':'guitar music','🎷':'saxophone','🎺':'trumpet','🥁':'drum','🎧':'headphones music','🎤':'microphone sing',
+  '💻':'computer laptop','📱':'phone mobile','⌚':'watch time','💡':'light bulb idea','🔮':'crystal ball magic','🪄':'magic wand',
+};
+
+const RECENT_KEY = 'quotes-emoji-recent';
+
+let lang = localStorage.getItem('quotes-lang') || 'zh';
+
+const i18n = {
+  zh: {
+    title: '语录手帐', subtitle: 'Collect your favorite quotes ~',
+    searchPlaceholder: '搜索语录、作者...', addBtn: '记一笔',
+    allTab: '全部', favTab: '收藏',
+    categories: { '人生':'人生','爱情':'爱情','励志':'励志','文学':'文学','哲学':'哲学','幽默':'幽默','其他':'其他' },
+    categoryIcons: { '全部':'📒','收藏':'❤️','人生':'🌿','爱情':'💌','励志':'🔥','文学':'📖','哲学':'🌙','幽默':'😄','其他':'✨' },
+    statsQuotes: 'quotes', statsFavs: 'favorites', statsShowing: 'showing',
+    emptyTitle: '这里还是空白的', emptyDesc: '点击 + 开始收集你喜欢的句子吧',
+    emptySearchTitle: '没找到相关语录', emptySearchDesc: '换个关键词试试？',
+    editHint: 'click to edit',
+    modalAddTitle: '记录一条语录', modalEditTitle: '修改这条语录',
+    labelContent: '语录内容 *', labelAuthor: '作者', labelSource: '出处',
+    labelCategory: '分类', labelFont: '字体风格',
+    placeholderContent: '写下触动你的那句话...', placeholderAuthor: '佚名', placeholderSource: '书名、电影...',
+    cancelBtn: '算了', saveBtn: '收好!',
+    confirmMsg: '确定要撕掉这条语录吗？', confirmCancel: '留着吧', confirmDelete: '撕掉!',
+    toastAdded: '收好了！新语录已记入手帐 ~', toastUpdated: '已更新语录 ~', toastDeleted: '已撕掉这条语录 ~',
+    toastStickerRemoved: '贴纸已撕掉', defaultAuthor: '佚名',
+    sourceWrap: (s) => `《${s}》`,
+    stickerLabels: { recent:'最近使用', smileys:'表情', gestures:'手势', people:'人物', animals:'动物', nature:'自然', food:'美食', travel:'旅行', objects:'物品', activities:'活动', symbols:'符号', flags:'旗帜' },
+    emojiSearch: '搜索 emoji...', emojiNoResults: '没找到相关 emoji',
+  },
+  en: {
+    title: 'Quote Journal', subtitle: 'Collect your favorite quotes ~',
+    searchPlaceholder: 'Search quotes, authors...', addBtn: 'New',
+    allTab: 'All', favTab: 'Favorites',
+    categories: { '人生':'Life','爱情':'Love','励志':'Motivation','文学':'Literature','哲学':'Philosophy','幽默':'Humor','其他':'Other' },
+    categoryIcons: { '全部':'📒','收藏':'❤️','人生':'🌿','爱情':'💌','励志':'🔥','文学':'📖','哲学':'🌙','幽默':'😄','其他':'✨' },
+    statsQuotes: 'quotes', statsFavs: 'favorites', statsShowing: 'showing',
+    emptyTitle: 'Nothing here yet', emptyDesc: 'Tap + to start collecting your favorite quotes',
+    emptySearchTitle: 'No quotes found', emptySearchDesc: 'Try a different keyword?',
+    editHint: 'click to edit',
+    modalAddTitle: 'Add a Quote', modalEditTitle: 'Edit Quote',
+    labelContent: 'Quote *', labelAuthor: 'Author', labelSource: 'Source',
+    labelCategory: 'Category', labelFont: 'Font Style',
+    placeholderContent: 'Write down the words that moved you...', placeholderAuthor: 'Anonymous', placeholderSource: 'Book, movie...',
+    cancelBtn: 'Cancel', saveBtn: 'Save!',
+    confirmMsg: 'Delete this quote?', confirmCancel: 'Keep it', confirmDelete: 'Delete!',
+    toastAdded: 'Saved! New quote added ~', toastUpdated: 'Quote updated ~', toastDeleted: 'Quote deleted ~',
+    toastStickerRemoved: 'Sticker removed', defaultAuthor: 'Anonymous',
+    sourceWrap: (s) => `"${s}"`,
+    stickerLabels: { recent:'Recent', smileys:'Smileys', gestures:'Gestures', people:'People', animals:'Animals', nature:'Nature', food:'Food', travel:'Travel', objects:'Objects', activities:'Activities', symbols:'Symbols', flags:'Flags' },
+    emojiSearch: 'Search emoji...', emojiNoResults: 'No emoji found',
+  }
+};
+
+function t() { return i18n[lang]; }
+function getCategoryDisplay(cat) { return cat === '全部' ? t().allTab : cat === '收藏' ? t().favTab : t().categories[cat] || cat; }
+function getCategoryIcon(cat) { return t().categoryIcons[cat] || '✨'; }
+
+const CATEGORIES_KEYS = ['全部','人生','爱情','励志','文学','哲学','幽默','其他'];
+
+const SAMPLE_QUOTES = [
+  { text:'生活不止眼前的苟且，还有诗和远方的田野。', author:'高晓松', source:'', category:'人生', fav:false, fontId:'ma-shan-zheng', stickers:[] },
+  { text:'世界上只有一种英雄主义，就是看清生活的真相之后依然热爱生活。', author:'罗曼·罗兰', source:'', category:'励志', fav:true, fontId:'zcool-kuaile', stickers:[{emoji:'🔥',x:85,y:8,rot:12}] },
+  { text:'人生若只如初见，何事秋风悲画扇。', author:'纳兰性德', source:'木兰花·拟古决绝词柬友', category:'文学', fav:false, fontId:'zhi-mang-xing', stickers:[{emoji:'🍂',x:80,y:5,rot:-8}] },
+  { text:'不乱于心，不困于情。不畏将来，不念过往。如此，安好。', author:'丰子恺', source:'', category:'哲学', fav:false, fontId:'liu-jian-mao-cao', stickers:[] },
+  { text:'愿你出走半生，归来仍是少年。', author:'佚名', source:'', category:'人生', fav:true, fontId:'long-cang', stickers:[{emoji:'✨',x:78,y:6,rot:15},{emoji:'🌿',x:5,y:75,rot:-10}] },
+  { text:'山有木兮木有枝，心悦君兮君不知。', author:'佚名', source:'越人歌', category:'爱情', fav:false, fontId:'ma-shan-zheng', stickers:[{emoji:'💌',x:82,y:70,rot:8}] },
+  { text:'生如夏花之绚烂，死如秋叶之静美。', author:'泰戈尔', source:'飞鸟集', category:'文学', fav:true, fontId:'zcool-xiaowei', stickers:[{emoji:'🌸',x:8,y:5,rot:-12}] },
+  { text:'我从没被谁知道，所以也没被谁忘记。在别人的回忆中生活，并不是我的目的。', author:'余华', source:'活着', category:'文学', fav:false, fontId:'ma-shan-zheng', stickers:[] },
+  { text:'你要做一个不动声色的大人了。不准情绪化，不准偷偷想念，不准回头看。', author:'村上春树', source:'舞！舞！舞！', category:'人生', fav:false, fontId:'zcool-kuaile', stickers:[] },
+  { text:'我们都在阴沟里，但仍有人仰望星空。', author:'王尔德', source:'', category:'哲学', fav:true, fontId:'caveat', stickers:[{emoji:'⭐',x:82,y:8,rot:20}] },
+];
+
+let state = { quotes:[], activeCategory:'全部', searchQuery:'', editingId:null, deleteId:null, selectedFontId:'ma-shan-zheng', openStickerId:null };
+
+function generateId() { return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+
+function loadQuotes() {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved) {
+    state.quotes = JSON.parse(saved);
+    state.quotes.forEach(q => { if (!q.stickers) q.stickers = []; if (!q.fontId) q.fontId = 'ma-shan-zheng'; });
+  } else {
+    state.quotes = SAMPLE_QUOTES.map(q => ({ id:generateId(), ...q, color:CARD_COLORS[Math.floor(Math.random()*CARD_COLORS.length)], createdAt:Date.now()-Math.floor(Math.random()*86400000*30) }));
+    saveQuotes();
+  }
+}
+
+function saveQuotes() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state.quotes)); }
+
+function getFontFamily(fontId) {
+  const f = FONT_OPTIONS.find(o => o.id === fontId);
+  return f ? f.family : FONT_OPTIONS[0].family;
+}
+
+function getFilteredQuotes() {
+  let filtered = [...state.quotes];
+  if (state.activeCategory === '收藏') filtered = filtered.filter(q => q.fav);
+  else if (state.activeCategory !== '全部') filtered = filtered.filter(q => q.category === state.activeCategory);
+  if (state.searchQuery.trim()) {
+    const query = state.searchQuery.toLowerCase();
+    filtered = filtered.filter(q => q.text.toLowerCase().includes(query) || q.author.toLowerCase().includes(query) || (q.source && q.source.toLowerCase().includes(query)));
+  }
+  return filtered.sort((a,b) => b.createdAt-a.createdAt);
+}
+
+function renderSpiral() {
+  const c = document.getElementById('spiralBinding');
+  const n = Math.floor(window.innerWidth/60);
+  c.innerHTML = '';
+  for (let i=0;i<n;i++) { const r=document.createElement('div'); r.className='spiral-ring'; c.appendChild(r); }
+}
+
+function renderFontPicker(selectedId) {
+  const picker = document.getElementById('fontPicker');
+  picker.innerHTML = FONT_OPTIONS.map(f =>
+    `<div class="font-option ${f.id===selectedId?'active':''}" data-font-id="${f.id}" onclick="selectFont('${f.id}')">
+      <div class="font-sample" style="font-family:${f.family}">${f.sample}</div>
+      <div class="font-name">${f.name}</div>
+    </div>`
+  ).join('');
+}
+
+function selectFont(id) {
+  state.selectedFontId = id;
+  document.querySelectorAll('.font-option').forEach(el => el.classList.toggle('active', el.dataset.fontId===id));
+  const ta = document.getElementById('quoteText');
+  ta.style.fontFamily = getFontFamily(id);
+}
+
+function renderTabs() {
+  const c = document.getElementById('categoryTabs');
+  const cats = [...CATEGORIES_KEYS];
+  if (state.quotes.some(q => q.fav)) cats.splice(1,0,'收藏');
+  c.innerHTML = cats.map(cat => `<button class="tab ${state.activeCategory===cat?'active':''}" onclick="setCategory('${cat}')">${getCategoryIcon(cat)} ${getCategoryDisplay(cat)}</button>`).join('');
+}
+
+function renderStats() {
+  const total=state.quotes.length, favs=state.quotes.filter(q=>q.fav).length, filtered=getFilteredQuotes().length;
+  const showing = (state.activeCategory!=='全部'||state.searchQuery) ? `<span class="stat-item">${t().statsShowing} <span class="stat-num">${filtered}</span></span>` : '';
+  document.getElementById('statsBar').innerHTML = `<span class="stat-item"><span class="stat-num">${total}</span> ${t().statsQuotes}</span><span class="stat-item"><span class="stat-num">${favs}</span> ${t().statsFavs}</span>${showing}`;
+}
+
+function renderQuotes() {
+  const grid = document.getElementById('quotesGrid');
+  const quotes = getFilteredQuotes();
+  if (!quotes.length) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">
+      <svg viewBox="0 0 120 120" fill="none" stroke="var(--pencil-light)" stroke-width="1.5" stroke-linecap="round"><rect x="20" y="15" width="80" height="95" rx="3" stroke-dasharray="4 3"/><line x1="35" y1="35" x2="85" y2="35"/><line x1="35" y1="50" x2="75" y2="50"/><line x1="35" y1="65" x2="80" y2="65"/><line x1="35" y1="80" x2="60" y2="80"/><circle cx="90" cy="90" r="18" stroke-width="2"/><line x1="83" y1="90" x2="97" y2="90"/></svg>
+      <h3>${state.searchQuery?t().emptySearchTitle:t().emptyTitle}</h3>
+      <p>${state.searchQuery?t().emptySearchDesc:t().emptyDesc}</p></div>`;
+    return;
+  }
+  grid.innerHTML = quotes.map((q,i) => {
+    const stickersHtml = (q.stickers||[]).map((s,si) =>
+      `<span class="card-sticker" style="left:${s.x}%;top:${s.y}%;transform:rotate(${s.rot||0}deg);animation:stickerPop 0.3s ease backwards;animation-delay:${si*0.05}s" onclick="removeSticker('${q.id}',${si})" title="tap to remove">${s.emoji}</span>`
+    ).join('');
+    return `<div class="quote-card" style="background:var(--note-${q.color||'cream'});animation-delay:${i*0.06}s;" data-id="${q.id}">
+      ${stickersHtml}
+      <span class="edit-indicator">${t().editHint}</span>
+      <div class="quote-text" style="font-family:${getFontFamily(q.fontId)}" ondblclick="startEdit('${q.id}')">${escapeHtml(q.text)}</div>
+      ${q.author?`<div class="quote-author">${escapeHtml(q.author)}</div>`:''}
+      ${q.source?`<div class="quote-source">${t().sourceWrap(escapeHtml(q.source))}</div>`:''}
+      <div class="card-footer">
+        <span class="card-category">${getCategoryIcon(q.category)} ${getCategoryDisplay(q.category)}</span>
+        <div class="card-actions">
+          <button class="card-btn fav-btn ${q.fav?'active':''}" onclick="toggleFav('${q.id}')">
+            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          </button>
+          <button class="card-btn sticker-btn" onclick="openEmojiPicker('${q.id}')">🎨</button>
+          <button class="card-btn edit-btn" onclick="startEdit('${q.id}')">
+            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          <button class="card-btn del-btn" onclick="askDelete('${q.id}')">
+            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function escapeHtml(str) { const d=document.createElement('div'); d.textContent=str; return d.innerHTML; }
+function setCategory(cat) { state.activeCategory=cat; renderTabs(); renderStats(); renderQuotes(); }
+
+function toggleFav(id) {
+  const q=state.quotes.find(q=>q.id===id);
+  if(q){q.fav=!q.fav; saveQuotes(); renderTabs(); renderStats(); renderQuotes();}
+}
+
+// --- Emoji picker system ---
+function getRecentEmojis() {
+  try { return JSON.parse(localStorage.getItem(RECENT_KEY)) || []; } catch { return []; }
+}
+function saveRecentEmoji(emoji) {
+  let recent = getRecentEmojis().filter(e => e !== emoji);
+  recent.unshift(emoji);
+  if (recent.length > 20) recent = recent.slice(0, 20);
+  localStorage.setItem(RECENT_KEY, JSON.stringify(recent));
+}
+
+let emojiPickerQuoteId = null;
+let emojiActiveCat = 'smileys';
+
+function openEmojiPicker(quoteId) {
+  emojiPickerQuoteId = quoteId;
+  emojiActiveCat = 'smileys';
+  document.getElementById('emojiSearchInput').value = '';
+  document.getElementById('emojiSearchInput').placeholder = t().emojiSearch;
+  renderEmojiCatTabs();
+  renderEmojiRecent();
+  renderEmojiGrid();
+  document.getElementById('emojiOverlay').classList.add('open');
+}
+
+function closeEmojiPicker() {
+  document.getElementById('emojiOverlay').classList.remove('open');
+  emojiPickerQuoteId = null;
+}
+
+function renderEmojiCatTabs() {
+  const tabs = document.getElementById('emojiCatTabs');
+  const cats = Object.keys(EMOJI_DATA).filter(k => k !== 'recent');
+  tabs.innerHTML = cats.map(cat =>
+    `<button class="emoji-cat-tab ${cat===emojiActiveCat?'active':''}" onclick="setEmojiCat('${cat}')" title="${t().stickerLabels[cat]||cat}">${EMOJI_DATA[cat].icon}</button>`
+  ).join('');
+}
+
+function setEmojiCat(cat) {
+  emojiActiveCat = cat;
+  renderEmojiCatTabs();
+  renderEmojiGrid();
+  document.getElementById('emojiScroll').scrollTop = 0;
+}
+
+function renderEmojiRecent() {
+  const container = document.getElementById('emojiRecent');
+  const recent = getRecentEmojis();
+  if (!recent.length) { container.innerHTML = ''; return; }
+  container.innerHTML = `<div class="emoji-recent-label">${t().stickerLabels.recent||'Recent'}</div>
+    <div class="emoji-recent-row">${recent.map(e => `<button class="emoji-pick" onclick="pickEmoji('${e}')">${e}</button>`).join('')}</div>`;
+}
+
+function renderEmojiGrid(filter) {
+  const scroll = document.getElementById('emojiScroll');
+  const labels = t().stickerLabels;
+
+  if (filter && filter.trim()) {
+    const q = filter.toLowerCase();
+    let results = [];
+    for (const [cat, data] of Object.entries(EMOJI_DATA)) {
+      if (cat === 'recent') continue;
+      for (const emoji of data.emojis) {
+        const tags = (EMOJI_SEARCH_TAGS[emoji] || '').toLowerCase();
+        if (emoji.includes(q) || tags.includes(q)) results.push(emoji);
+      }
+    }
+    results = [...new Set(results)];
+    if (!results.length) {
+      scroll.innerHTML = `<div class="emoji-no-results">${t().emojiNoResults}</div>`;
+      return;
+    }
+    scroll.innerHTML = `<div class="emoji-grid">${results.map(e => `<button class="emoji-pick" onclick="pickEmoji('${e}')">${e}</button>`).join('')}</div>`;
+    return;
+  }
+
+  const cats = Object.keys(EMOJI_DATA).filter(k => k !== 'recent');
+  const idx = cats.indexOf(emojiActiveCat);
+  const visible = cats.slice(Math.max(0, idx), Math.min(cats.length, idx + 3));
+
+  scroll.innerHTML = visible.map(cat => {
+    const data = EMOJI_DATA[cat];
+    return `<div class="emoji-section-label">${labels[cat]||cat}</div>
+      <div class="emoji-grid">${data.emojis.map(e => `<button class="emoji-pick" onclick="pickEmoji('${e}')">${e}</button>`).join('')}</div>`;
+  }).join('');
+}
+
+function pickEmoji(emoji) {
+  if (!emojiPickerQuoteId) return;
+  const q = state.quotes.find(q => q.id === emojiPickerQuoteId);
+  if (!q) return;
+  if (!q.stickers) q.stickers = [];
+  if (q.stickers.length >= 12) { showToast(lang==='zh'?'最多贴12个贴纸哦':'Max 12 stickers!'); return; }
+  const positions = [
+    {x:3+Math.random()*18, y:3+Math.random()*12},
+    {x:75+Math.random()*20, y:3+Math.random()*12},
+    {x:3+Math.random()*18, y:70+Math.random()*18},
+    {x:75+Math.random()*20, y:70+Math.random()*18},
+  ];
+  const pos = positions[Math.floor(Math.random()*positions.length)];
+  q.stickers.push({ emoji, x:Math.round(pos.x), y:Math.round(pos.y), rot:Math.round(-20+Math.random()*40) });
+  saveRecentEmoji(emoji);
+  saveQuotes();
+  renderQuotes();
+  renderEmojiRecent();
+}
+
+function removeSticker(quoteId, stickerIndex) {
+  const q=state.quotes.find(q=>q.id===quoteId);
+  if(!q||!q.stickers) return;
+  q.stickers.splice(stickerIndex,1);
+  saveQuotes();
+  renderQuotes();
+  showToast(t().toastStickerRemoved);
+}
+
+let emojiSearchTimer;
+document.getElementById('emojiSearchInput').addEventListener('input',(e)=>{
+  clearTimeout(emojiSearchTimer);
+  emojiSearchTimer=setTimeout(()=>renderEmojiGrid(e.target.value),150);
+});
+
+function askDelete(id) { state.deleteId=id; document.getElementById('confirmOverlay').classList.add('open'); }
+function closeConfirm() { document.getElementById('confirmOverlay').classList.remove('open'); state.deleteId=null; }
+
+function confirmDelete() {
+  if(!state.deleteId) return;
+  const card=document.querySelector(`[data-id="${state.deleteId}"]`);
+  if(card) {
+    card.style.animation='fadeSlideOut 0.35s ease forwards';
+    card.addEventListener('animationend',()=>{
+      state.quotes=state.quotes.filter(q=>q.id!==state.deleteId);
+      saveQuotes(); state.deleteId=null;
+      renderTabs(); renderStats(); renderQuotes(); showToast(t().toastDeleted);
+    },{once:true});
+  }
+  closeConfirm();
+}
+
+function openModal(editId) {
+  state.editingId = editId||null;
+  const titleEl = document.getElementById('modalTitle');
+  if(editId) {
+    const q=state.quotes.find(q=>q.id===editId);
+    if(!q) return;
+    titleEl.textContent=t().modalEditTitle;
+    document.getElementById('quoteText').value=q.text;
+    document.getElementById('quoteAuthor').value=q.author||'';
+    document.getElementById('quoteSource').value=q.source||'';
+    document.getElementById('quoteCategory').value=q.category;
+    state.selectedFontId = q.fontId||'ma-shan-zheng';
+  } else {
+    titleEl.textContent=t().modalAddTitle;
+    document.getElementById('quoteForm').reset();
+    state.selectedFontId='ma-shan-zheng';
+  }
+  renderFontPicker(state.selectedFontId);
+  document.getElementById('quoteText').style.fontFamily = getFontFamily(state.selectedFontId);
+  document.getElementById('modalOverlay').classList.add('open');
+  setTimeout(()=>document.getElementById('quoteText').focus(),400);
+}
+
+function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); state.editingId=null; }
+function handleOverlayClick(e) { if(e.target===e.currentTarget) closeModal(); }
+function startEdit(id) { openModal(id); }
+
+function handleSubmit(e) {
+  e.preventDefault();
+  const text=document.getElementById('quoteText').value.trim();
+  const author=document.getElementById('quoteAuthor').value.trim()||t().defaultAuthor;
+  const source=document.getElementById('quoteSource').value.trim();
+  const category=document.getElementById('quoteCategory').value;
+  const fontId=state.selectedFontId;
+  if(!text) return;
+  if(state.editingId) {
+    const q=state.quotes.find(q=>q.id===state.editingId);
+    if(q){q.text=text;q.author=author;q.source=source;q.category=category;q.fontId=fontId; showToast(t().toastUpdated);}
+  } else {
+    state.quotes.unshift({id:generateId(),text,author,source,category,fontId,fav:false,stickers:[],color:CARD_COLORS[Math.floor(Math.random()*CARD_COLORS.length)],createdAt:Date.now()});
+    showToast(t().toastAdded);
+  }
+  saveQuotes(); closeModal(); renderTabs(); renderStats(); renderQuotes();
+}
+
+function showToast(msg) {
+  const toast=document.getElementById('toast'); toast.textContent=msg; toast.classList.add('show');
+  clearTimeout(toast._t); toast._t=setTimeout(()=>toast.classList.remove('show'),2500);
+}
+
+let searchTimer;
+document.getElementById('searchInput').addEventListener('input',(e)=>{
+  clearTimeout(searchTimer);
+  searchTimer=setTimeout(()=>{state.searchQuery=e.target.value;renderStats();renderQuotes();},200);
+});
+
+document.addEventListener('keydown',(e)=>{
+  if(e.key==='Escape'){
+    if(document.getElementById('emojiOverlay').classList.contains('open')) closeEmojiPicker();
+    else if(document.getElementById('confirmOverlay').classList.contains('open')) closeConfirm();
+    else if(document.getElementById('modalOverlay').classList.contains('open')) closeModal();
+  }
+  if((e.ctrlKey||e.metaKey)&&e.key==='n'){e.preventDefault();openModal();}
+});
+
+function setLang(newLang) {
+  lang=newLang; localStorage.setItem('quotes-lang',lang);
+  document.querySelectorAll('#langToggle button').forEach(btn=>btn.classList.toggle('active',btn.dataset.lang===lang));
+  renderStaticUI(); renderTabs(); renderStats(); renderQuotes();
+}
+
+function renderStaticUI() {
+  document.querySelector('.header h1').textContent=t().title;
+  document.querySelector('.header-subtitle').textContent=t().subtitle;
+  document.getElementById('searchInput').placeholder=t().searchPlaceholder;
+  document.querySelector('.btn-add-text').textContent=t().addBtn;
+  document.getElementById('confirmMsg').textContent=t().confirmMsg;
+  document.getElementById('confirmCancelBtn').textContent=t().confirmCancel;
+  document.getElementById('confirmDeleteBtn').textContent=t().confirmDelete;
+  document.getElementById('labelContent').textContent=t().labelContent;
+  document.getElementById('labelAuthor').textContent=t().labelAuthor;
+  document.getElementById('labelSource').textContent=t().labelSource;
+  document.getElementById('labelCategory').textContent=t().labelCategory;
+  document.getElementById('labelFont').textContent=t().labelFont;
+  document.getElementById('quoteText').placeholder=t().placeholderContent;
+  document.getElementById('quoteAuthor').placeholder=t().placeholderAuthor;
+  document.getElementById('quoteSource').placeholder=t().placeholderSource;
+  const btns=document.querySelectorAll('#quoteForm .modal-btn');
+  btns[0].textContent=t().cancelBtn; btns[1].textContent=t().saveBtn;
+  const sel=document.getElementById('quoteCategory'); const cv=sel.value;
+  sel.innerHTML=CATEGORIES_KEYS.slice(1).map(c=>`<option value="${c}">${getCategoryDisplay(c)}</option>`).join('');
+  sel.value=cv;
+}
+
+// --- Service Worker registration ---
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+
+function init() {
+  loadQuotes(); renderSpiral();
+  document.querySelectorAll('#langToggle button').forEach(btn=>btn.classList.toggle('active',btn.dataset.lang===lang));
+  renderStaticUI(); renderTabs(); renderStats(); renderQuotes();
+  window.addEventListener('resize',renderSpiral);
+}
+init();
+</script>
+</body>
+</html>
