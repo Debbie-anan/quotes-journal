@@ -1286,16 +1286,21 @@ function closeConfirm() { document.getElementById('confirmOverlay').classList.re
 
 function confirmDelete() {
   if(!state.deleteId) return;
-  const card=document.querySelector(`[data-id="${state.deleteId}"]`);
+  const idToDelete=state.deleteId;
+  const card=document.querySelector(`[data-id="${idToDelete}"]`);
+  closeConfirm();
   if(card) {
     card.style.animation='fadeSlideOut 0.35s ease forwards';
     card.addEventListener('animationend',()=>{
-      state.quotes=state.quotes.filter(q=>q.id!==state.deleteId);
-      saveQuotes(); state.deleteId=null;
+      state.quotes=state.quotes.filter(q=>q.id!==idToDelete);
+      saveQuotes();
       renderTabs(); renderStats(); renderQuotes(); showToast(t().toastDeleted);
     },{once:true});
+  } else {
+    state.quotes=state.quotes.filter(q=>q.id!==idToDelete);
+    saveQuotes();
+    renderTabs(); renderStats(); renderQuotes(); showToast(t().toastDeleted);
   }
-  closeConfirm();
 }
 
 function openModal(editId) {
